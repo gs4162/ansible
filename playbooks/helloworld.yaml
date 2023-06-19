@@ -1,0 +1,33 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install Docker prerequisites
+      apt:
+        name:
+          - docker.io
+        update_cache: yes
+
+    - name: Add user permissions
+      shell: "usermod -aG docker {{ ansible_env.SUDO_USER }}"
+
+    - name: Reset SSH connection for changes to take effect
+      meta: reset_connection
+
+    - name: Install Python package manager
+      apt:
+        name: python3-pip
+
+    - name: Install Docker SDK
+      become_user: "{{ ansible_env.SUDO_USER }}"
+      pip:
+        name:
+          - docker
+          - docker-compose
+
+    - name: Run Docker Hello, World! container
+      become_user: "{{ ansible_env.SUDO_USER }}"
+      docker_container:
+        name: hello-world
+        image: hello-world
+        state: started
