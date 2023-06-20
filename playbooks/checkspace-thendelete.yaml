@@ -9,7 +9,7 @@
 
     - name: Convert available disk space to integer
       set_fact:
-        available_space: "{{ disk_space.stdout | regex_replace('G', '') | int }}"
+        available_space: "{{ disk_space.stdout[:-1] | int }}"
 
     - name: Delete all files in the directory if available space is less than 10GB
       shell: rm -rf /mnt/SSD-NFS/sabnzb/Downloads/complete/*
