@@ -1,0 +1,29 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: update apt cache
+      apt:
+        update_cache: yes
+
+    - name: full upgrade all packages to the latest version
+      apt:
+        upgrade: 'full'
+        autoremove: yes
+
+    - name: Change directory to /opt/home-stack-23
+      command: cd /opt/home-stack-23
+      args:
+        chdir: /opt/home-stack-23
+
+    - name: Docker compose pull
+      shell: docker compose pull
+
+    - name: Docker compose up -d
+      shell: docker compose up -d
+
+    - name: Docker image prune -af
+      shell: docker image prune -af
+
+    - name: Docker volume prune -f
+      shell: docker volume prune -f
