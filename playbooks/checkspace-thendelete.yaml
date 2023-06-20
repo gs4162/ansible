@@ -7,9 +7,17 @@
       register: disk_space
       changed_when: false
 
+    - debug:
+        var: disk_space.stdout
+        verbosity: 3
+
     - name: Convert available disk space to integer
       set_fact:
         available_space: "{{ disk_space.stdout[:-1] | int }}"
+
+    - debug:
+        var: available_space
+        verbosity: 3
 
     - name: Delete all files in the directory if available space is less than 10GB
       shell: rm -rf /mnt/SSD-NFS/sabnzb/Downloads/complete/*
