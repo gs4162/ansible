@@ -1,6 +1,7 @@
 ---
 - hosts: all
   become: yes
+  become_method: sudo
   tasks:
     - name: update apt cache
       apt:
@@ -12,18 +13,26 @@
         autoremove: yes
 
     - name: Change directory to /opt/home-stack-23
-      command: cd /opt/home-stack-23
-      args:
+      command:
+        cmd: echo "changed directory to /opt/home-stack-23"
         chdir: /opt/home-stack-23
 
     - name: Docker compose pull
       shell: docker compose pull
+      become: yes
+      become_method: sudo
 
     - name: Docker compose up -d
       shell: docker compose up -d
+      become: yes
+      become_method: sudo
 
     - name: Docker image prune -af
       shell: docker image prune -af
+      become: yes
+      become_method: sudo
 
     - name: Docker volume prune -f
       shell: docker volume prune -f
+      become: yes
+      become_method: sudo
