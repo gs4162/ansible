@@ -2,11 +2,11 @@
 - hosts: all
   become: yes
   tasks:
-    - name: Install Docker prerequisites
+    - name: Update apt packages
       apt:
-        name:
-          - docker.io
+        upgrade: yes
         update_cache: yes
+
 
     - name: Add user permissions
       shell: "usermod -aG docker {{ ansible_env.SUDO_USER }}"
