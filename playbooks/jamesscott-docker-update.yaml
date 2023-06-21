@@ -3,27 +3,12 @@
   become_method: sudo
 
   tasks:
-    - name: Change directory to /opt/home-stack-23
-      command:
-        cmd: echo "changed directory to /opt/home-stack-23"
-        chdir: /opt/home-stack-23
-
     - name: Docker compose pull
-      command: docker compose pull
+      command: docker compose -f /opt/home-stack-23/docker-compose.yml pull
       become: yes
       become_method: sudo
 
     - name: Docker compose up -d
-      command: docker compose up -d
-      become: yes
-      become_method: sudo
-
-    - name: Docker image prune -af
-      command: docker image prune -af
-      become: yes
-      become_method: sudo
-
-    - name: Docker volume prune -f
-      command: docker volume prune -f
+      command: docker compose -f /opt/home-stack-23/docker-compose.yml up -d
       become: yes
       become_method: sudo
