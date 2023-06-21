@@ -12,3 +12,13 @@
       command: docker compose -f /opt/home-stack-23/docker-compose.yml up -d
       become: yes
       become_method: sudo
+
+    - name: Docker image prune -af
+      command: docker image prune -af
+      become: yes
+      become_method: sudo
+
+    - name: Docker volume prune -f
+      command: docker volume prune -f
+      become: yes
+      become_method: sudo
