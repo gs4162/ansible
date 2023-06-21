@@ -3,6 +3,15 @@
   become: yes
   become_method: sudo
   tasks:
+    - name: update apt cache
+      apt:
+        update_cache: yes
+
+    - name: full upgrade all packages to the latest version
+      apt:
+        upgrade: 'full'
+        autoremove: yes
+
     - name: Change directory to /opt/home-stack-23
       command:
         cmd: echo "changed directory to /opt/home-stack-23"
