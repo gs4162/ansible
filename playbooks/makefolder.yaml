@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Ensure directory /opt/ansible exists
+    file:
+      path: /opt/ansible
+      state: directory
+      mode: '0755'
