@@ -2,13 +2,7 @@
 ---
 - hosts: all
   become: yes
-  vars:
-    ansible_user: "ubuntu"
-    my_client_ip: "100.114.203.20"
-    tmzone: "UTC"
-    sudo_timeout: 60
-
   tasks:
-    - name: Upgrade all apt packages
-      apt: upgrade=dist force_apt_get=yes
-    
+    - name: install net-tools
+      apt:
+        name: net-tools
