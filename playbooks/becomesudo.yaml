@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Add user to sudoers
+      user:
+        name: ubuntu
+        groups: sudo
+        append: yes
