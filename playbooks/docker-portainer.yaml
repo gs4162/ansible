@@ -3,6 +3,17 @@
   become: yes
   tasks:
 
+  - name: Install pip
+    apt:
+      name: python3-pip
+      state: present
+      update_cache: yes
+
+  - name: Install Docker Python module
+    pip:
+      name: docker
+      state: present
+
   - name: Install necessary packages for Docker
     apt:
       name:
