@@ -3,7 +3,7 @@
   tasks:
   - name: Check if file exists and capture details
     stat:
-      path: /path/to/your/file
+      path: /opt/ansible/docker-compose.yaml
     register: file_info
 
   - name: Display debug message if file does not exist
