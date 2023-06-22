@@ -1,0 +1,12 @@
+---
+- hosts: ubuntu_hosts
+  tasks:
+  - name: Check permissions of a file
+    stat:
+      path: /path/to/your/file
+    register: file_info
+
+  - name: Display debug message if permissions are not as expected
+    debug:
+      msg: "Permissions are not 0644 as expected!"
+    when: file_info.stat.mode != "0644"
