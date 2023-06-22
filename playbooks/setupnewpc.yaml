@@ -1,16 +1,13 @@
+
 ---
-
 - hosts: all
-
-  become: ubuntu
-
+  become: yes
   vars:
-
-    my_client_ip: 100.114.203.20
-
-    tmzone: UTC
-
+    ansible_user: "ubuntu"
+    my_client_ip: "100.114.203.20"
+    tmzone: "UTC"
     sudo_timeout: 60
+
 
 
 
