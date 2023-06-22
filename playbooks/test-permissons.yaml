@@ -1,12 +1,18 @@
 ---
 - hosts: all
   tasks:
-  - name: Check permissions of a file
+  - name: Check if file exists and capture details
     stat:
       path: /path/to/your/file
     register: file_info
 
+  - name: Display debug message if file does not exist
+    debug:
+      msg: "File does not exist or could not be read!"
+    when: not file_info.stat.exists
+
   - name: Display debug message if permissions are not as expected
     debug:
       msg: "Permissions are not 0644 as expected!"
-    when: file_info.stat.mode != "0644"
+    when: file_info.stat.exists and file_info.stat.mode != "0644"
+
