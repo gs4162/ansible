@@ -1,0 +1,5 @@
+sudo systemctl ssh (Check SSH status)
+sudo ufw allow ssh (Firewall rule)
+sudo ufw enable
+sudo ufw status
+sudo ss -ltup (Check its listing)

@@ -1,0 +1,52 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+
+  - name: Install necessary packages for Docker
+    apt:
+      name:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+      update_cache: yes
+
+  - name: Add Docker GPG key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker APT repository
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu "{{ ansible_distribution_release }}" stable
+      state: present
+
+  - name: Install Docker
+    apt:
+      name: docker-ce
+      update_cache: yes
+
+  - name: Install Docker Compose
+    get_url:
+      url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ ansible_system }}-{{ ansible_userspace_architecture }}"
+      dest: /usr/local/bin/docker-compose
+      mode: '0755'
+
+  - name: Create directory
+    file:
+      path: /opt/ansible
+      state: directory
+
+  - name: Create docker-compose file
+    copy:
+      dest: /opt/ansible/docker-compose.yaml
+      content: |
+        version: '3'
+        services:
+          portainer:
+            image: portainer/portainer
+            ports:
+              - 9000:9000
+            volumes:
+              - /var/run/docker.sock:/var/run/docker.sock
