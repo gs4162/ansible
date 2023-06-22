@@ -1,5 +1,5 @@
 ---
-- hosts: ubuntu_hosts
+- hosts: all
   tasks:
   - name: Check permissions of a file
     stat:
