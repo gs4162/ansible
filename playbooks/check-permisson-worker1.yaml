@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Check if /opt/ansible directory exists
+      stat: 
+        path: /opt/ansible
+      register: dir_status
+      
+    - name: Create /opt/ansible directory if it does not exist
+      file:
+        path: /opt/ansible
+        state: directory
+        mode: '0755'
+      when: not dir_status.stat.exists
