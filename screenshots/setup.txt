@@ -3,3 +3,9 @@ sudo ufw allow ssh (Firewall rule)
 sudo ufw enable
 sudo ufw status
 sudo ss -ltup (Check its listing)
+
+IP address
+
+192.168.1.76
+
+PS C:\Users\g.stillwell> scp C:\Users\g.stillwell\.ssh\id_ed25519.pub ubuntu@192.168.1.76:~/ubuntu_rsa.pub
