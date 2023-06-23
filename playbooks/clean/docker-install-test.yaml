@@ -3,6 +3,11 @@
   hosts: all
   become: true
   tasks:
+    - name: Check if Docker is installed
+      command: docker --version
+      register: docker_installed
+      ignore_errors: true
+
     - name: Install prerequisites
       apt:
         name:
@@ -12,25 +17,25 @@
           - gnupg
           - lsb-release
         update_cache: yes
-      when: ansible_os_family == "Debian"
+      when: ansible_os_family == "Debian" and docker_installed.failed
 
     - name: Add Docker's official GPG key
       ansible.builtin.apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
-      when: ansible_os_family == "Debian"
+      when: ansible_os_family == "Debian" and docker_installed.failed
 
     - name: Add Docker's official apt repository
       ansible.builtin.apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb['codename'] }} stable
         state: present
-      when: ansible_os_family == "Debian"
+      when: ansible_os_family == "Debian" and docker_installed.failed
 
     - name: Install Docker CE
       apt:
         name: docker-ce
         update_cache: yes
-      when: ansible_os_family == "Debian"
+      when: ansible_os_family == "Debian" and docker_installed.failed
 
     - name: Add user permissions
       user:
@@ -55,19 +60,19 @@
       stat: 
         path: /opt/ansible
       register: dir_status
-      
+
     - name: Create /opt/ansible directory if it does not exist
       file:
         path: /opt/ansible
         state: directory
         mode: '0755'
       when: not dir_status.stat.exists
-      
+
     - name: Check if /opt/ansible/portainer_data directory exists
       stat: 
         path: /opt/ansible/portainer_data
       register: portainer_data_dir_status
-      
+
     - name: Create /opt/ansible/portainer_data directory if it does not exist
       file:
         path: /opt/ansible/portainer_data
