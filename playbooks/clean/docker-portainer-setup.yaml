@@ -14,6 +14,18 @@
         mode: '0755'
       when: not dir_status.stat.exists
       
+    - name: Check if /opt/ansible/portainer_data directory exists
+      stat: 
+        path: /opt/ansible/portainer_data
+      register: portainer_data_dir_status
+      
+    - name: Create /opt/ansible/portainer_data directory if it does not exist
+      file:
+        path: /opt/ansible/portainer_data
+        state: directory
+        mode: '0755'
+      when: not portainer_data_dir_status.stat.exists
+      
     - name: Check Docker status
       shell: docker -v || true
       register: docker_status
@@ -46,6 +58,7 @@
                 - 8000:8000
               volumes:
                 - /var/run/docker.sock:/var/run/docker.sock
-                - portainer_data:/data
-          volumes:
-            portainer_data:
+                - /opt/ansible/portainer_data:/data
+
+    - name: Start Docker Compose
+      shell: cd /opt/ansible && docker-compose up -d
