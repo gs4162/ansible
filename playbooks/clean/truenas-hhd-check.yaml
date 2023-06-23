@@ -1,0 +1,14 @@
+---
+- name: Check drive health on TrueNAS system
+  hosts: truenas
+  gather_facts: no
+
+  tasks:
+  - name: Check ZFS pool status
+    ansible.builtin.command:
+      cmd: zpool status
+    register: result
+
+  - name: Display ZFS pool status
+    debug:
+      var: result.stdout_lines
