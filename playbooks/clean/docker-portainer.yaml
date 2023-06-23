@@ -1,27 +1,78 @@
 ---
 - hosts: all
-  
-  become: yes
-  become_user: "{{ lookup('env','USER') }}"
+  become: true
   tasks:
+    - name: Update APT package manager
+      apt: 
+        update_cache: yes
+    
+    - name: Install necessary packages
+      apt:
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - ca-certificates
+        - curl
+        - gnupg
 
-  # Create Portainer Volume
-  # --
-  # 
-  - name: Create new Volume
-    community.docker.docker_volume:
-      name: portainer-data
+    - name: Add Docker's official GPG key
+      shell: |
+        sudo install -m 0755 -d /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
-  # Deploy Portainer
-  # --
-  #   
-  - name: Deploy Portainer
-    community.docker.docker_container:
-      name: portainer
-      image: "docker.io/portainer/portainer-ce"
-      ports:
-        - "9443:9443"
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
-        - portainer-data:/data
-      restart_policy: always
+    - name: Set up the Docker repository
+      shell: |
+        echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    - name: Update the APT package manager again
+      apt: 
+        update_cache: yes
+
+    - name: Install Docker Engine, Docker CLI, containerd.io, Docker Buildx Plugin, and Docker Compose Plugin
+      apt: 
+        name: docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-buildx-plugin
+        state: present
+
+    - name: Check if /opt/ansible directory exists
+      stat: 
+        path: /opt/ansible
+      register: dir_status
+      
+    - name: Create /opt/ansible directory if it does not exist
+      file:
+        path: /opt/ansible
+        state: directory
+        mode: '0755'
+      when: not dir_status.stat.exists
+      
+    - name: Check if /opt/ansible/portainer_data directory exists
+      stat: 
+        path: /opt/ansible/portainer_data
+      register: portainer_data_dir_status
+      
+    - name: Create /opt/ansible/portainer_data directory if it does not exist
+      file:
+        path: /opt/ansible/portainer_data
+        state: directory
+        mode: '0755'
+      when: not portainer_data_dir_status.stat.exists
+
+    - name: Create docker-compose.yaml
+      copy:
+        dest: "/opt/ansible/docker-compose.yaml"
+        content: |
+          version: '3.1'
+          services:
+            portainer:
+              image: portainer/portainer
+              restart: always
+              ports:
+                - 9000:9000
+                - 8000:8000
+              volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+                - /opt/ansible/portainer_data:/data
+
+    - name: Start Docker Compose
+      shell: cd /opt/ansible && docker-compose up -d
