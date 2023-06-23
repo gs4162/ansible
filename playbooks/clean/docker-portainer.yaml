@@ -75,4 +75,4 @@
                 - /opt/ansible/portainer_data:/data
 
     - name: Start Docker Compose
-      shell: cd /opt/ansible && docker-compose up -d
+      shell: cd /opt/ansible && docker compose up -d
