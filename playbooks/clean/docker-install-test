@@ -1,0 +1,69 @@
+---
+- name: Install Docker
+  hosts: all
+  become: true
+  tasks:
+    - name: Install prerequisites
+      apt:
+        name:
+          - docker.io
+        update_cache: yes
+
+    - name: Add user permissions
+      shell: "usermod -aG docker $USER"
+
+    - name: Reset ssh connection for changes to take effect
+      meta: reset_connection
+
+    - name: Install Python package manager
+      apt:
+        name: python3-pip
+
+    - name: Install Python SDK
+      pip:
+        name:
+          - docker
+          - docker-compose
+
+    - name: Check if /opt/ansible directory exists
+      stat: 
+        path: /opt/ansible
+      register: dir_status
+      
+    - name: Create /opt/ansible directory if it does not exist
+      file:
+        path: /opt/ansible
+        state: directory
+        mode: '0755'
+      when: not dir_status.stat.exists
+      
+    - name: Check if /opt/ansible/portainer_data directory exists
+      stat: 
+        path: /opt/ansible/portainer_data
+      register: portainer_data_dir_status
+      
+    - name: Create /opt/ansible/portainer_data directory if it does not exist
+      file:
+        path: /opt/ansible/portainer_data
+        state: directory
+        mode: '0755'
+      when: not portainer_data_dir_status.stat.exists
+
+    - name: Create docker-compose.yaml
+      copy:
+        dest: "/opt/ansible/docker-compose.yaml"
+        content: |
+          version: '3.1'
+          services:
+            portainer:
+              image: portainer/portainer
+              restart: always
+              ports:
+                - 9000:9000
+                - 8000:8000
+              volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+                - /opt/ansible/portainer_data:/data
+
+    - name: Start Docker Compose
+      shell: cd /opt/ansible && docker-compose up -d
