@@ -36,3 +36,22 @@
     - name: Print NVIDIA driver version
       debug:
         var: nvidia_version.stdout_lines
+
+    - name: Add Nvidia Docker GPG key
+      shell: curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+
+    - name: Add Nvidia Docker repo
+      shell: |
+        distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+        curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+    - name: Update and install nvidia-docker2
+      shell: |
+        sudo apt-get update
+        sudo apt-get install -y nvidia-docker2
+
+    - name: Restart Docker
+      shell: sudo pkill -SIGHUP dockerd
+
+    - name: Final Reboot
+      reboot:
