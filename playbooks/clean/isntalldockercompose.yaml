@@ -1,35 +1,51 @@
 ---
-- hosts: all
-  become: true
+- hosts: 192.168.12.44
+  become: yes
   tasks:
+    - name: Fix broken dependencies
+      command: apt --fix-broken install -y
+      become: yes
+
+    - name: Update all system package
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all system package
+      apt:
+        upgrade: dist
+        update_cache: yes
+
     - name: Ensure dpkg is in a consistent state
-      ansible.builtin.command:
-        cmd: dpkg --configure -a
-      ignore_errors: yes
+      command: dpkg --configure -a
+      become: yes
 
     - name: Uninstall all conflicting packages
-      ansible.builtin.command:
-        cmd: apt-get remove -y {{ item }}
-      loop:
+      apt:
+        name: "{{ item }}"
+        state: absent
+      with_items:
         - docker.io
         - docker-doc
         - docker-compose
         - podman-docker
         - containerd
         - runc
-      ignore_errors: yes
 
     - name: Install necessary packages
-      ansible.builtin.apt:
+      apt:
         name: "{{ item }}"
-        update_cache: yes
         state: present
-      loop:
+      with_items:
         - apt-transport-https
         - ca-certificates
         - curl
         - gnupg-agent
         - software-properties-common
+
+    # You can continue here with the rest of your tasks
+...
+
 
     - name: Add Docker's official GPG key
       ansible.builtin.apt_key:
