@@ -1,0 +1,60 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Update APT package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install APT dependencies
+      apt:
+        name: ['apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common']
+        state: present
+
+    - name: Add Docker's official GPG key
+      ansible.builtin.shell: 
+        cmd: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+        warn: no
+
+    - name: Verify that the key fingerprint is correct
+      shell: apt-key fingerprint 0EBFCD88 | grep "9DC8 5822 9FC7 DD38 854A  E2D8 8D81 803C 0EBF CD88"
+      ignore_errors: yes
+      register: fingerprint_cmd
+      changed_when: fingerprint_cmd.rc != 0
+
+    - name: Set up the Docker stable repository
+      ansible.builtin.shell: 
+        cmd: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        warn: no
+
+    - name: Install Docker CE
+      apt:
+        name: ['docker-ce', 'docker-ce-cli', 'containerd.io']
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker service is running
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Check if /opt/ansible directory exists
+      stat: 
+        path: /opt/ansible
+      register: dir_status
+      
+    - name: Create /opt/ansible directory if it does not exist
+      file:
+        path: /opt/ansible
+        state: directory
+        mode: '0755'
+      when: not dir_status.stat.exists
+...
