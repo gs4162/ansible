@@ -1,0 +1,56 @@
+---
+- hosts: all
+  become: true
+  vars:
+    username: ubuntu
+  tasks:
+    - name: Ensure directories /opt/ansible/plex and /opt/ansible/plex/plex_data_transcode exists
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /opt/ansible/plex
+        - /opt/ansible/plex/plex_data_transcode
+
+    - name: Create docker-compose.yaml in /opt/ansible/plex
+      copy:
+        dest: "/opt/ansible/plex/docker-compose.yaml"
+        content: |
+          version: '3.8'
+          services:
+            plex:
+              image: plexinc/pms-docker:1.30.0.6486-629d58034
+              runtime: nvidia
+              restart: unless-stopped
+              container_name: plex
+              ports:
+                - "32400:32400/tcp"
+                - "3005:3005/tcp"
+                - "8324:8324/tcp"
+                - "32469:32469/tcp"
+                - "1900:1900/udp"
+                - "32410:32410/udp"
+                - "32412:32412/udp"
+                - "32413:32413/udp"
+                - "32414:32414/udp"
+              environment:
+                - PUID=1000
+                - PGID=1000
+                - TZ=Pacific/Auckland
+                - PLEX_CLAIM=claim-12xV-ZXg_sogrtuZwb8t
+                - NVIDIA_VISIBLE_DEVICES=ALL
+                - NVIDIA_DRIVER_CAPABILITIES=all
+              volumes:
+                - /opt/ansible/plex/plex_data:/config
+                - /opt/ansible/plex/plex_data_transcode:/transcode
+                - /mnt/Movies:/data/movies
+                - /mnt/TV:/data/tv
+
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+
+    - name: Start Docker Compose
+      shell: cd /opt/ansible/plex && docker-compose up -d
