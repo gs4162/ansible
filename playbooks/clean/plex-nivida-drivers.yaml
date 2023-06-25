@@ -1,0 +1,94 @@
+---
+- hosts: all
+  become: true
+  vars:
+    username: ubuntu
+  tasks:
+    - name: Check if /opt/ansible directory exists
+      stat: 
+        path: /opt/ansible
+      register: dir_status
+      
+    - name: Create /opt/ansible directory if it does not exist
+      file:
+        path: /opt/ansible
+        state: directory
+        mode: '0755'
+      when: not dir_status.stat.exists
+      
+    - name: Check if /opt/ansible/portainer_data directory exists
+      stat: 
+        path: /opt/ansible/portainer_data
+      register: portainer_data_dir_status
+      
+    - name: Create /opt/ansible/portainer_data directory if it does not exist
+      file:
+        path: /opt/ansible/portainer_data
+        state: directory
+        mode: '0755'
+      when: not portainer_data_dir_status.stat.exists
+      
+    - name: Check Docker status
+      command: docker version
+      register: docker_status
+      failed_when: "'command not found' in docker_status.stderr"
+      
+    - name: Install Docker
+      shell: curl -sSL https://get.docker.com/ | sh
+      when: docker_status is failed
+      
+    - name: Check Docker Compose status
+      command: docker compose version
+      register: docker_compose_status
+      failed_when: "'command not found' in docker_compose_status.stderr"
+      
+    - name: Install Docker Compose
+      shell: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
+      when: docker_compose_status is failed
+      
+    - name: Check Docker Compose installation
+      command: docker compose version
+      register: docker_compose_check
+      failed_when: "'command not found' in docker_compose_check.stderr"
+      when: docker_compose_status is failed
+
+    - name: Create Docker group
+      group:
+        name: docker
+        state: present
+
+    - name: Add '{{ username }}' user to Docker group
+      user:
+        name: '{{ username }}'
+        groups: docker
+        append: yes
+      
+    - name: Restart Docker service
+      systemd:
+        name: docker
+        state: restarted
+      when: "'docker' in ansible_local"
+
+    - name: Create docker-compose.yaml
+      copy:
+        dest: "/opt/ansible/docker-compose.yaml"
+        content: |
+          version: '3.1'
+          services:
+            portainer:
+              image: portainer/portainer
+              restart: always
+              ports:
+                - 9000:9000
+                - 8000:8000
+              volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+                - /opt/ansible/portainer_data:/data
+
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+
+    - name: Start Docker Compose
+      shell: cd /opt/ansible && docker compose up -d
