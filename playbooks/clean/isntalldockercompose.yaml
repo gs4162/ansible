@@ -38,6 +38,11 @@
         path: /etc/apt/keyrings/docker.gpg
         mode: '0644'
 
+    - name: Ensure coreutils is installed
+      apt:
+        name: coreutils
+        state: present
+
     - name: Set up the Docker stable repository
       ansible.builtin.shell:
         cmd: >
