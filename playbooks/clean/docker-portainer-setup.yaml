@@ -85,5 +85,10 @@
                 - /var/run/docker.sock:/var/run/docker.sock
                 - /opt/ansible/portainer_data:/data
 
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+
     - name: Start Docker Compose
       shell: cd /opt/ansible && docker compose up -d
