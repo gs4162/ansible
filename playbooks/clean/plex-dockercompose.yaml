@@ -4,14 +4,15 @@
   vars:
     username: ubuntu
   tasks:
-    - name: Ensure directories /opt/ansible/plex and /opt/ansible/plex/plex_data_transcode exists
+    - name: Ensure directories /opt/ansible/plex, /opt/ansible/plex/plex_data, and /opt/ansible/plex/plex_transcode exists
       file:
         path: "{{ item }}"
         state: directory
         mode: '0755'
       loop:
         - /opt/ansible/plex
-        - /opt/ansible/plex/plex_data_transcode
+        - /opt/ansible/plex/plex_data
+        - /opt/ansible/plex/plex_transcode
 
     - name: Create docker-compose.yaml in /opt/ansible/plex
       copy:
@@ -43,9 +44,9 @@
                 - NVIDIA_DRIVER_CAPABILITIES=all
               volumes:
                 - /opt/ansible/plex/plex_data:/config
-                - /opt/ansible/plex/plex_data_transcode:/transcode
+                - /opt/ansible/plex/plex_transcode:/transcode
                 - /mnt/Movies:/data/movies
-                - /mnt/TV:/data/tv
+                - /mnt/TV:/data/tvplex-smi
 
     - name: Start Docker service
       systemd:
