@@ -1,0 +1,24 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Navigate to /opt/ansible/plex
+      command: cd /opt/ansible/plex
+      args:
+        chdir: /opt/ansible/plex
+
+    - name: Pull the latest Docker Compose images
+      command: docker compose pull
+
+    - name: Start Docker Compose
+      command: docker compose up -d
+
+    - name: Remove all unused Docker images
+      command: docker image prune -af
+      register: image_prune
+      changed_when: "'Total reclaimed space:' in image_prune.stdout"
+
+    - name: Remove all unused Docker volumes
+      command: docker volume prune -f
+      register: volume_prune
+      changed_when: "'Total reclaimed space:' in volume_prune.stdout"
