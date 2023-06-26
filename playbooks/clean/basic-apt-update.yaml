@@ -1,9 +1,6 @@
 - hosts: all
   become: true
   tasks:
-    - name: Fix any broken dependencies
-      command: apt --fix-broken install
-      become: true
 
     - name: update apt packages
       apt:
