@@ -6,7 +6,7 @@
       setup:
         filter: ansible_mounts
 
-    - name: Show disk usage
+    - name: Display disk usage
       debug:
-        msg: "Mount {{ item.mount }} on {{ item.device }} is using {{ item.size_total - item.size_available }} bytes out of {{ item.size_total }} bytes"
+        msg: "Host: {{ ansible_facts['nodename'] }}, Disk: {{ item.device }}, Mount: {{ item.mount }}, Used: {{ ((item.size_total - item.size_available) / 1024 / 1024 / 1024) | round(2) }} GB, Free: {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }} GB, Total: {{ (item.size_total / 1024 / 1024 / 1024) | round(2) }} GB"
       loop: "{{ ansible_mounts }}"
