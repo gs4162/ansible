@@ -1,13 +1,17 @@
----
 - hosts: all
   become: yes
   tasks:
+    - name: ensure dpkg is in a clean state
+      command: dpkg --configure -a
+      become: yes
+
     - name: ensure bad repositories are removed
       lineinfile:
         path: /etc/apt/sources.list
         regexp: '^deb file:/cdrom'
         state: absent
       become: yes
+
 
     - name: install docker dependencies
       apt:
