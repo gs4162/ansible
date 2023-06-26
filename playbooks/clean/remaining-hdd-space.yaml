@@ -1,0 +1,12 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Gather facts
+      setup:
+        filter: ansible_mounts
+
+    - name: Show disk usage
+      debug:
+        msg: "Mount {{ item.mount }} on {{ item.device }} is using {{ item.size_total - item.size_available }} bytes out of {{ item.size_total }} bytes"
+      loop: "{{ ansible_mounts }}"
