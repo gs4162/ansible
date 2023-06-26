@@ -1,0 +1,26 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Ensure NFS mount directories exist
+      file:
+        path: "{{ item.mount }}"
+        state: directory
+      loop:
+        - { server: '192.168.12.173', path: '/mnt/Raidz2/Movies', mount: '/mnt/Movies' }
+        - { server: '192.168.12.225', path: '/mnt/SSD/VM-NFS', mount: '/mnt/SSD-NFS' }
+        - { server: '192.168.12.225', path: '/mnt/RAIDZ/TV', mount: '/mnt/TV' }
+        - { server: '192.168.12.225', path: '/mnt/RAIDZ/VM-HDD', mount: '/mnt/HHD-NFS' }
+
+    - name: Mount NFS shares
+      mount:
+        path: "{{ item.mount }}"
+        src: "{{ item.server }}:{{ item.path }}"
+        fstype: nfs
+        opts: defaults
+        state: mounted
+      loop:
+        - { server: '192.168.12.173', path: '/mnt/Raidz2/Movies', mount: '/mnt/Movies' }
+        - { server: '192.168.12.225', path: '/mnt/SSD/VM-NFS', mount: '/mnt/SSD-NFS' }
+        - { server: '192.168.12.225', path: '/mnt/RAIDZ/TV', mount: '/mnt/TV' }
+        - { server: '192.168.12.225', path: '/mnt/RAIDZ/VM-HDD', mount: '/mnt/HHD-NFS' }
