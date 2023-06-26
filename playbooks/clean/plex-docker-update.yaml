@@ -2,16 +2,11 @@
 - hosts: all
   become: true
   tasks:
-    - name: Navigate to /opt/ansible/plex
-      command: cd /opt/ansible/plex
-      args:
-        chdir: /opt/ansible/plex
-
     - name: Pull the latest Docker Compose images
-      command: docker compose pull
+      command: docker compose pull -f /opt/ansible/plex/docker-compose.yaml
 
     - name: Start Docker Compose
-      command: docker compose up -d
+      command: docker compose up -d -f /opt/ansible/plex/docker-compose.yaml
 
     - name: Remove all unused Docker images
       command: docker image prune -af
