@@ -1,0 +1,117 @@
+---
+- hosts: all
+  become: true
+  vars:
+    username: ubuntu
+    timezone: Pacific/Auckland
+    downloads: /mnt/HHD-NFS/transmission/downloads
+    downloadsssd: /mnt/SSD-NFS/sabnzb/downloads
+    movies: /mnt/Movies
+    tvseries: /mnt/TV
+  tasks:
+    - name: Ensure directories for transmission, nzbget, prowlarr, radarr, sonarr, sabnzbd exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /opt/ansible/worker2
+        - /opt/ansible/worker2/transmission/config
+        - /opt/ansible/worker2/transmission/watch
+        - /opt/ansible/worker2/nzbget/config
+        - /opt/ansible/worker2/prowlarr/config
+        - /opt/ansible/worker2/radarr/config
+        - /opt/ansible/worker2/sonarr/config
+        - /opt/ansible/worker2/sabnzbd/config
+
+    - name: Create docker-compose.yaml in /opt/ansible/worker2
+      copy:
+        dest: "/opt/ansible/worker2/docker-compose.yaml"
+        content: |
+          version: '3.0'
+          services:
+            transmission:
+              image: linuxserver/transmission
+              container_name: transmission
+              environment:
+                - PUID=1000
+                - PGID=1000
+                - TZ={{ timezone }}
+              volumes:
+                - /opt/ansible/worker2/transmission/config:/config
+                - {{ downloads }}:/downloads
+                - /opt/ansible/worker2/transmission/watch:/watch
+              ports:
+                - 9091:9091
+                - 49153:49153
+                - 49153:49153/udp
+              restart: unless-stopped
+            nzbget:
+              image: lscr.io/linuxserver/nzbget:latest
+              container_name: nzbget
+              environment:
+                - PUID=1000
+                - PGID=1000
+                - TZ={{ timezone }}
+              volumes:
+                - /opt/ansible/worker2/nzbget/config:/config
+                - {{ downloadsssd }}:/downloads
+              ports:
+                - 6789:6789
+              restart: unless-stopped
+                          prowlarr:
+              image: lscr.io/linuxserver/prowlarr:develop
+              container_name: prowlarr
+              environment:
+                - PUID=1000
+                - PGID=1000
+                - TZ={{ timezone }}
+              volumes:
+                - /opt/ansible/worker2/prowlarr/config:/config
+              ports:
+                - 9696:9696
+              restart: unless-stopped
+            radarr:
+              image: linuxserver/radarr
+              container_name: radarr
+              environment:
+                - PUID=1000
+                - PGID=1000
+                - TZ={{ timezone }}
+                - UMASK_SET=022
+              volumes:
+                - /opt/ansible/worker2/radarr/config:/config
+                - {{ movies }}:/movies
+                - /opt/ansible/worker2/sabnzbd/Downloads/complete:/downloads
+              ports:
+                - 7878:7878
+              restart: unless-stopped
+            sonarr:
+              image: linuxserver/sonarr
+              container_name: sonarr
+              environment:
+                - PUID=1000
+                - PGID=1000
+                - TZ={{ timezone }}
+                - UMASK_SET=022
+              volumes:
+                - /opt/ansible/worker2/sonarr/config:/config
+                - {{ tvseries }}:/tv
+                - /opt/ansible/worker2/sabnzbd/Downloads/complete:/downloads
+              ports:
+                - 8989:8989
+              restart: unless-stopped
+            sabnzbd:
+              image: lscr.io/linuxserver/sabnzbd:latest
+              container_name: sabnzbd
+              environment:
+                - PUID=1000
+                - PGID=1000
+                - TZ={{ timezone }}
+              volumes:
+                - /opt/ansible/worker2/sabnzbd/config:/config
+                - {{ downloadsssd }}:/downloads
+                - /mnt/SSD-Zvol/Incomplete:/incomplete-downloads
+              ports:
+                - 8080:8080
+              restart: unless-stopped
