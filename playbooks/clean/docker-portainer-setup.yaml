@@ -28,30 +28,6 @@
         mode: '0755'
       when: not portainer_data_dir_status.stat.exists
       
-    - name: Check Docker status
-      command: docker version
-      register: docker_status
-      failed_when: "'command not found' in docker_status.stderr"
-      
-    - name: Install Docker
-      shell: curl -sSL https://get.docker.com/ | sh
-      when: docker_status is failed
-      
-    - name: Check Docker Compose status
-      command: docker compose version
-      register: docker_compose_status
-      failed_when: "'command not found' in docker_compose_status.stderr"
-      
-    - name: Install Docker Compose
-      shell: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
-      when: docker_compose_status is failed
-      
-    - name: Check Docker Compose installation
-      command: docker compose version
-      register: docker_compose_check
-      failed_when: "'command not found' in docker_compose_check.stderr"
-      when: docker_compose_status is failed
-
     - name: Create Docker group
       group:
         name: docker
