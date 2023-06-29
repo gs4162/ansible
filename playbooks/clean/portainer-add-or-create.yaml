@@ -54,6 +54,7 @@
       blockinfile:
         path: /opt/ansible/docker-compose.yaml
         block: |
+          # BEGIN ANSIBLE MANAGED BLOCK PORTAINER
           portainer:
             image: portainer/portainer
             restart: always
@@ -63,8 +64,9 @@
             volumes:
               - /var/run/docker.sock:/var/run/docker.sock
               - /opt/ansible/portainer_data:/data
+          # END ANSIBLE MANAGED BLOCK PORTAINER
         insertafter: "webtop:"
-        marker: "# {mark} ANSIBLE MANAGED BLOCK PORTAINER"
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
       when: compose_file.stat.exists
 
     - name: Create docker-compose.yaml if it does not exist
