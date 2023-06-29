@@ -1,0 +1,91 @@
+---
+- hosts: all
+  become: true
+  vars:
+    username: ubuntu
+  tasks:
+    - name: Check if /opt/ansible directory exists
+      stat: 
+        path: /opt/ansible
+      register: dir_status
+      
+    - name: Create /opt/ansible directory if it does not exist
+      file:
+        path: /opt/ansible
+        state: directory
+        mode: '0755'
+      when: not dir_status.stat.exists
+      
+    - name: Check if /opt/ansible/portainer_data directory exists
+      stat: 
+        path: /opt/ansible/portainer_data
+      register: portainer_data_dir_status
+      
+    - name: Create /opt/ansible/portainer_data directory if it does not exist
+      file:
+        path: /opt/ansible/portainer_data
+        state: directory
+        mode: '0755'
+      when: not portainer_data_dir_status.stat.exists
+      
+    - name: Create Docker group
+      group:
+        name: docker
+        state: present
+
+    - name: Add '{{ username }}' user to Docker group
+      user:
+        name: '{{ username }}'
+        groups: docker
+        append: yes
+      
+    - name: Restart Docker service
+      systemd:
+        name: docker
+        state: restarted
+      when: "'docker' in ansible_local"
+
+    - name: Check if docker-compose.yaml exists
+      stat:
+        path: /opt/ansible/docker-compose.yaml
+      register: compose_file
+
+    - name: Append to docker-compose.yaml if it exists
+      blockinfile:
+        path: /opt/ansible/docker-compose.yaml
+        block: |
+          portainer:
+            image: portainer/portainer
+            restart: always
+            ports:
+              - 9000:9000
+              - 8000:8000
+            volumes:
+              - /var/run/docker.sock:/var/run/docker.sock
+              - /opt/ansible/portainer_data:/data
+      when: compose_file.stat.exists
+
+    - name: Create docker-compose.yaml if it does not exist
+      copy:
+        dest: "/opt/ansible/docker-compose.yaml"
+        content: |
+          version: '3.1'
+          services:
+            portainer:
+              image: portainer/portainer
+              restart: always
+              ports:
+                - 9000:9000
+                - 8000:8000
+              volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+                - /opt/ansible/portainer_data:/data
+      when: not compose_file.stat.exists
+
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+
+    - name: Start Docker Compose
+      shell: cd /opt/ansible && docker compose up -d
