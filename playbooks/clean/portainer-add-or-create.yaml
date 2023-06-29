@@ -55,15 +55,15 @@
         path: /opt/ansible/docker-compose.yaml
         block: |
           # BEGIN ANSIBLE MANAGED BLOCK PORTAINER
-          portainer:
-            image: portainer/portainer
-            restart: always
-            ports:
-              - 9000:9000
-              - 8000:8000
-            volumes:
-              - /var/run/docker.sock:/var/run/docker.sock
-              - /opt/ansible/portainer_data:/data
+            portainer:
+              image: portainer/portainer
+              restart: always
+              ports:
+                - 9000:9000
+                - 8000:8000
+              volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+                - /opt/ansible/portainer_data:/data
           # END ANSIBLE MANAGED BLOCK PORTAINER
         insertafter: "services:"
         marker: "# {mark} ANSIBLE MANAGED BLOCK"
