@@ -63,7 +63,7 @@
             volumes:
               - /var/run/docker.sock:/var/run/docker.sock
               - /opt/ansible/portainer_data:/data
-        insertafter: "services:"
+        insertafter: "webtop:"
         marker: "# {mark} ANSIBLE MANAGED BLOCK PORTAINER"
       when: compose_file.stat.exists
 
