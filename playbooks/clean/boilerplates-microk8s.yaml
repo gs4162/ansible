@@ -1,11 +1,15 @@
 ---
 - name: install microk8s
-- hosts: all
+  hosts: all
   become: yes
   tasks:
     - name: install microk8s
       snap:
-        classic: yes
         name: microk8s
-    - name: add userpermissions
-      shell: "usermod -aG microk8s {{ lookup('env','USER') }}"
+        classic: yes
+
+    - name: add user permissions
+      user:
+        name: "{{ ansible_user }}"
+        groups: microk8s
+        append: yes
