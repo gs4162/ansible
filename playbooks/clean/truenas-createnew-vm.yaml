@@ -1,0 +1,46 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Get the size and free space of all ZFS pools
+      shell: zpool list -H -o name,size,free
+      register: zpool_size
+      changed_when: false
+
+    - name: Display the size and free space of all ZFS pools
+      debug:
+        msg: "{{ zpool_size.stdout_lines }}"
+
+    - name: Create a new VM on TrueNAS SCALE
+      uri:
+        url: "http://192.168.1.232/api/v2.0/vm"
+        method: POST
+        body_format: json
+        headers:
+          Authorization: "Bearer <API_KEY>"
+        body:
+          name: "jamesscottworker2"
+          description: "Linux VM"
+          vcpus: 4
+          memory: 2048
+          cpu_mode: "CUSTOM"
+          bootloader: "GRUB"
+          autostart: false
+        status_code: 200
+      register: vm_creation_response
+
+    - name: Create a disk for VM on TrueNAS SCALE
+      uri:
+        url: "http://192.168.1.232/api/v2.0/vm/device"
+        method: POST
+        body_format: json
+        headers:
+          Authorization: "Bearer <API_KEY>"
+        body:
+          vm: "{{ vm_creation_response.json.id }}"
+          dtype: "RAW"
+          attributes:
+            path: "</path/to/ssd/vm-ssd/jamesscottworker2.img>"
+            size: 102400 # 100 GiB in MiB
+          order: 0
+        status_code: 200
