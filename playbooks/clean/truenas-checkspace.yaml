@@ -1,0 +1,12 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Get the size and free space of all ZFS pools
+      shell: zpool list -H -o name,size,free
+      register: zpool_size
+      changed_when: false
+
+    - name: Display the size and free space of all ZFS pools
+      debug:
+        msg: "{{ zpool_size.stdout_lines }}"
