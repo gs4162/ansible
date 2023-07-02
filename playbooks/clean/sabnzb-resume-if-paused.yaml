@@ -13,6 +13,10 @@
       register: queue_status
       changed_when: false
 
+    - name: Print queue status
+      debug:
+        var: queue_status
+
     - name: Resume queue if it is paused
       uri:
         url: "{{ base_url }}?mode=resume&apikey={{ api_key }}&output=json"
