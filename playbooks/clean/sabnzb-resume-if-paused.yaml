@@ -7,7 +7,7 @@
   tasks:
     - name: Get queue status
       uri:
-        url: "{{ base_url }}?mode=qstatus&apikey={{ api_key }}&output=json"
+        url: "{{ base_url }}?mode=queue&apikey={{ api_key }}&output=json"
         method: GET
         return_content: yes
       register: queue_status
