@@ -5,14 +5,7 @@
     base_url: 'http://192.168.12.190:8080/sabnzbd/api'
     api_key: 'b5078b24a8794870b632b3e9f17a2b84'
   tasks:
-    - name: Get queue status
+    - name: Resume queue
       uri:
-        url: "{{ base_url }}?mode=queue&apikey={{ api_key }}&output=json"
+        url: "{{ base_url }}?mode=resume&apikey={{ api_key }}&output=json"
         method: GET
-        return_content: yes
-      register: queue_status
-      changed_when: false
-
-    - name: Print queue status
-      debug:
-        var: queue_status
