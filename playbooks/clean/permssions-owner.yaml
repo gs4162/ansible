@@ -4,11 +4,17 @@
   vars:
     username: ubuntu
   tasks:
-    - name: Change owner and permissions for /opt/ansible/worker2 and its subdirectories
+    - name: Ensure directories and their subdirectories exist with correct permissions and owner
       file:
         path: "{{ item }}"
+        state: directory
         owner: "{{ username }}"
         mode: '0777'
         recurse: true
-      with_fileglob:
-        - /opt/ansible/worker2/*
+      loop:
+        - /opt/ansible/worker2/transmission/config
+        - /opt/ansible/worker2/transmission/watch
+        - /opt/ansible/worker2/radarr/config
+        - /opt/ansible/worker2/sabnzbd/Downloads/complete
+        - /opt/ansible/worker2/sonarr/config
+        - /opt/ansible/worker2/sabnzbd/config
