@@ -4,17 +4,18 @@
   vars:
     username: ubuntu
   tasks:
-    - name: Ensure directories and their subdirectories exist with correct permissions and owner
+    - name: Ensure directories, their subdirectories and specific file exist with correct permissions and owner
       file:
         path: "{{ item }}"
-        state: directory
+        state: "{{ 'directory' if item.endswith('/') else 'file' }}"
         owner: "{{ username }}"
         mode: '0777'
-        recurse: true
+        recurse: "{{ true if item.endswith('/') else false }}"
       loop:
-        - /opt/ansible/worker2/transmission/config
-        - /opt/ansible/worker2/transmission/watch
-        - /opt/ansible/worker2/radarr/config
-        - /opt/ansible/worker2/sabnzbd/Downloads/complete
-        - /opt/ansible/worker2/sonarr/config
-        - /opt/ansible/worker2/sabnzbd/config
+        - /opt/ansible/worker2/transmission/config/
+        - /opt/ansible/worker2/transmission/watch/
+        - /opt/ansible/worker2/radarr/config/
+        - /opt/ansible/worker2/sabnzbd/Downloads/complete/
+        - /opt/ansible/worker2/sonarr/config/
+        - /opt/ansible/worker2/sabnzbd/config/
+        - /opt/ansible/worker2/docker-compose.yaml
