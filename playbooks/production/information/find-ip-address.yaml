@@ -1,0 +1,24 @@
+---
+- hosts: localhost
+  gather_facts: False
+
+  vars:
+    script_url: "https://raw.githubusercontent.com/gs4162/ansible/dbf19bf639c1e9a6b50f392c6cb892750f9e12d4/playbooks/production/information/script/find-ip.sh"
+    script_local_dest: "/tmp/find-ip.sh"
+
+  tasks:
+    - name: Download the script
+      get_url:
+        url: "{{ script_url }}"
+        dest: "{{ script_local_dest }}"
+        mode: '0755'
+
+    - name: Run the script
+      shell: "{{ script_local_dest }}"
+      register: script_result
+      become: true
+
+    - name: Print the output
+      debug:
+        msg: "{{ script_result.stdout }}"
+...
