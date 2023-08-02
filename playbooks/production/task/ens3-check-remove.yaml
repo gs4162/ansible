@@ -2,11 +2,12 @@
 - hosts: all
   become: true
   tasks:
-      - name: Check if IP 192.168.1.4 is assigned to ens3
+    - name: Check if IP 192.168.1.4 is assigned to ens3
       shell: ip addr show ens3 | grep '192.168.1.4'
       register: ip_check
       ignore_errors: true
 
-      - name: Remove IP 192.168.1.4/24 from ens3 if it is assigned
-        command: ip addr del 192.168.1.4/24 dev ens3
-        when: ip_check.rc == 0
+    - name: Remove IP 192.168.1.4/24 from ens3 if it is assigned
+      command: ip addr del 192.168.1.4/24 dev ens3
+      when: ip_check.rc == 0
+
