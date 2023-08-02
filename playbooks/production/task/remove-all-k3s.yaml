@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+
+    - name: Uninstall K3s Server if it is installed
+      command: /usr/local/bin/k3s-uninstall.sh
+      ignore_errors: yes
+      when: "'k3s server' in ansible_facts['cmdline']['BOOT_IMAGE']"
+
+    - name: Uninstall K3s Agent if it is installed
+      command: /usr/local/bin/k3s-agent-uninstall.sh
+      ignore_errors: yes
+      when: "'k3s agent' in ansible_facts['cmdline']['BOOT_IMAGE']"
