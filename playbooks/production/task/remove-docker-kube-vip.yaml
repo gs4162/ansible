@@ -2,11 +2,11 @@
 - hosts: all
   become: true
   tasks:
-
-    # Remove all Docker containers
+  
     - name: Remove all Docker containers
-      command: docker rm -f $(docker ps -a -q)
+      shell: docker rm -f $(docker ps -a -q)
       ignore_errors: yes
+
 
     # Stop kubevip service if it exists
     - name: Stop kubevip service
