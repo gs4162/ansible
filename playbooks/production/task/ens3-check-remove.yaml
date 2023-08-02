@@ -7,6 +7,6 @@
       register: ip_check
       ignore_errors: true
 
-    - name: Remove IP 192.168.1.4/24 from ens3 if it is assigned
-      command: ip addr del 192.168.1.4/24 dev ens3
-      when: ip_check.rc == 0
+      - name: Remove IP 192.168.1.4/24 from ens3 if it is assigned
+        command: ip addr del 192.168.1.4/24 dev ens3
+        when: ip_check.rc == 0
