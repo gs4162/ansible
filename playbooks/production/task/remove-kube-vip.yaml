@@ -3,11 +3,16 @@
   become: true
   tasks:
 
+    - name: Remove old kube-vip.yaml file if it exists
+      file:
+        path: /var/lib/rancher/k3s/server/manifests/kube-vip.yaml
+        state: absent
+
     - name: Gather service facts
       service_facts:
-    
+
     - name: Restart containerd service
       systemd:
         name: containerd
         state: restarted
-      when: "'containerd' in ansible_facts['services']"
+      when: "'containerd.service' in ansible_facts['services']"
