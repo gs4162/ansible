@@ -7,9 +7,15 @@
       register: mac_result
       changed_when: false
 
+    - debug:
+        msg: "MAC address of ens3 is: {{ mac_result.stdout }}"
+
     - name: Extract the last 4 characters from the MAC address
       set_fact:
-        last_four_chars: "{{ mac_result.stdout[-4:] }}"
+        last_four_chars: "{{ mac_result.stdout[-5:] }}"
+
+    - debug:
+        msg: "Last 4 characters of MAC address are: {{ last_four_chars }}"
 
     - name: Set the hostname
       hostname:
