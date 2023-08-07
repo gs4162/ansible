@@ -9,12 +9,12 @@
 
     - name: Extract the last 4 characters from the MAC address (excluding colon)
       set_fact:
-        last_four_chars: "{{ mac_address.stdout[-4:] }}"
+        last_four_chars: "{{ mac_address.stdout.replace(':', '')[-4:] }}"
 
     - name: Set the hostname using command
       command:
         cmd: "hostnamectl set-hostname jamesscottworker-{{ last_four_chars }}"
-      when: ansible_hostname != "jamesscottworker-{{ last_four_chars }}"
+      when: ansible_hostname != "jamesscottworker-" ~ last_four_chars
       notify: Restart Network Service
 
   handlers:
