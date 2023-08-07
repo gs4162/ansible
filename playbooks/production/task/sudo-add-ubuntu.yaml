@@ -1,0 +1,11 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Ensure the ubuntu user has passwordless sudo access
+      lineinfile:
+        path: /etc/sudoers
+        regexp: '^ubuntu ALL='
+        line: 'ubuntu ALL=(ALL:ALL) NOPASSWD:ALL'
+        validate: 'visudo -cf %s'
+        state: present
