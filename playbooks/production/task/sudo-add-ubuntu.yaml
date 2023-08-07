@@ -9,7 +9,8 @@
   tasks:
     - name: Ensure the ubuntu user has passwordless sudo access
       lineinfile:
-        path: /etc/sudoers
+        path: /etc/sudoers.d/90-ansible-ubuntu
+        create: yes
         regexp: '^ubuntu ALL='
         line: 'ubuntu ALL=(ALL:ALL) NOPASSWD:ALL'
         validate: 'visudo -cf %s'
