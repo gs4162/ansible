@@ -3,8 +3,7 @@
   become: yes
   tasks:
     - name: Obtain MAC address of ens3
-      command:
-        cmd: "ip link show ens3 | grep link/ether | awk '{print $2}'"
+      shell: "ip link show ens3 | grep link/ether | awk '{print $2}'"
       register: mac_address
       changed_when: false
 
