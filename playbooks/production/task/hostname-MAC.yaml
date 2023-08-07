@@ -18,8 +18,9 @@
     - name: Set the hostname using command
       command:
         cmd: "hostnamectl set-hostname jamesscottworker-{{ last_four_chars }}"
-      when: ansible_hostname != "jamesscottworker-" ~ last_four_chars
+      when: ansible_hostname != "jamesscottworker-{{ last_four_chars }}"
       notify: Restart Network Service
+
 
   handlers:
     - name: Restart Network Service
