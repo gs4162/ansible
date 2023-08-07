@@ -1,0 +1,23 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Obtain MAC address of ens3
+      command: "cat /sys/class/net/ens3/address"
+      register: mac_result
+      changed_when: false
+
+    - name: Extract the last 4 characters from the MAC address
+      set_fact:
+        last_four_chars: "{{ mac_result.stdout[-4:] }}"
+
+    - name: Set the hostname
+      hostname:
+        name: "jamesscottworker-{{ last_four_chars }}"
+
+    - name: Ensure hostname is persisted across reboots
+      lineinfile:
+        path: /etc/hostname
+        regexp: '^.*$'
+        line: "jamesscottworker-{{ last_four_chars }}"
+        create: yes
