@@ -17,7 +17,7 @@
         msg: "Last four characters of MAC without colons: {{ last_four_chars }}"
 
     - name: Set the hostname using alternative method
-      shell: "echo \"jamesscottworker-{{ last_four_chars }}\" | tee /etc/hostname && /bin/hostname -F /etc/hostname"
+      shell: "echo \"jamesscottworker-{{ last_four_chars }}\" | sudo tee /etc/hostname && sudo /bin/hostname -F /etc/hostname"
       when: ansible_hostname != "jamesscottworker-" + last_four_chars
       notify: Restart Network Service
 
