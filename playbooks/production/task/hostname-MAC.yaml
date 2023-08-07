@@ -4,7 +4,7 @@
   become_method: sudo
   tasks:
     - name: Obtain MAC address of ens3
-      shell: "ip link show ens3 | grep link/ether | awk '{print $2}'"
+      shell: "/usr/sbin/ip link show ens3 | /bin/grep link/ether | /usr/bin/awk '{print $2}'"
       register: mac_address
       changed_when: false
 
@@ -17,7 +17,7 @@
         msg: "Last four characters of MAC without colons: {{ last_four_chars }}"
 
     - name: Set the hostname using alternative method
-      shell: echo "jamesscottworker-{{ last_four_chars }}" > /etc/hostname && hostname -F /etc/hostname
+      shell: "echo \"jamesscottworker-{{ last_four_chars }}\" | sudo tee /etc/hostname && sudo /bin/hostname -F /etc/hostname"
       when: ansible_hostname != "jamesscottworker-" + last_four_chars
       notify: Restart Network Service
 
