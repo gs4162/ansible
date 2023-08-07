@@ -3,27 +3,23 @@
   become: yes
   tasks:
     - name: Obtain MAC address of ens3
-      command: "cat /sys/class/net/ens3/address"
-      register: mac_result
+      command:
+        cmd: "ip link show ens3 | grep link/ether | awk '{print $2}'"
+      register: mac_address
       changed_when: false
-
-    - debug:
-        msg: "MAC address of ens3 is: {{ mac_result.stdout }}"
 
     - name: Extract the last 4 characters from the MAC address
       set_fact:
-        last_four_chars: "{{ mac_result.stdout[-5:] }}"
+        last_four_chars: "{{ mac_address.stdout[-5:] }}"
 
-    - debug:
-        msg: "Last 4 characters of MAC address are: {{ last_four_chars }}"
+    - name: Set the hostname using command
+      command:
+        cmd: "hostnamectl set-hostname jamesscottworker-{{ last_four_chars }}"
+      when: "'{{ ansible_hostname }}' != 'jamesscottworker-{{ last_four_chars }}'"
+      notify: Restart Network Service
 
-    - name: Set the hostname
-      hostname:
-        name: "jamesscottworker-{{ last_four_chars }}"
-
-    - name: Ensure hostname is persisted across reboots
-      lineinfile:
-        path: /etc/hostname
-        regexp: '^.*$'
-        line: "jamesscottworker-{{ last_four_chars }}"
-        create: yes
+  handlers:
+    - name: Restart Network Service
+      service:
+        name: network
+        state: restarted
