@@ -1,0 +1,23 @@
+---
+- hosts: all
+  tasks:
+    - name: Create a test file in the user's home directory
+      copy:
+        dest: "{{ ansible_env.HOME }}/testfile.txt"
+        content: "This is a test file created by Ansible."
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+
+    - name: Display the content of the test file
+      command: cat "{{ ansible_env.HOME }}/testfile.txt"
+      register: file_content
+
+    - name: Debug the file content
+      debug:
+        var: file_content.stdout
+
+    - name: Remove the test file (cleanup)
+      file:
+        path: "{{ ansible_env.HOME }}/testfile.txt"
+        state: absent
