@@ -21,8 +21,10 @@
       when: ansible_hostname != "jamesscottworker-" + last_four_chars
       notify: Restart Network Service
 
-  handlers:
-    - name: Restart Network Service
-      service:
-        name: network
-        state: restarted
+    handlers:
+        - name: Restart Network Service
+          service:
+            name: networking  # for Ubuntu
+            # name: NetworkManager  # for CentOS/Fedora
+            state: restarted
+
