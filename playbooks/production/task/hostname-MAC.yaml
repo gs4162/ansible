@@ -1,6 +1,7 @@
 ---
 - hosts: all
   become: yes
+  become_method: sudo
   tasks:
     - name: Obtain MAC address of ens3
       shell: "ip link show ens3 | grep link/ether | awk '{print $2}'"
