@@ -1,6 +1,12 @@
 ---
 - hosts: all
+  become: yes  # This will use sudo for all tasks in this playbook
   tasks:
+    - name: Update system packages
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600  # Update the cache if it's older than 1 hour
+
     - name: Create a test file in the user's home directory
       copy:
         dest: "{{ ansible_env.HOME }}/testfile.txt"
