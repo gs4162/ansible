@@ -11,6 +11,10 @@
       set_fact:
         last_four_chars: "{{ mac_address.stdout.replace(':', '')[-4:] }}"
 
+    - name: Print the last four characters for debugging
+      debug:
+        msg: "Last four characters of MAC without colons: {{ last_four_chars }}"
+
     - name: Set the hostname using command
       command:
         cmd: "hostnamectl set-hostname jamesscottworker-{{ last_four_chars }}"
