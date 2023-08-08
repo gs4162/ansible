@@ -14,3 +14,16 @@
         owner: root
         group: root
         mode: 0440
+
+    - name: Check permissions of sudoers file
+      stat:
+        path: /etc/sudoers
+      register: sudoers_stat
+
+    - name: Fail if sudoers file is not owned by root
+      fail:
+        when: sudoers_stat.stat.owner != 'root'
+
+    - name: Fail if sudoers file does not have mode 0440
+      fail:
+        when: sudoers_stat.stat.mode != 0440
