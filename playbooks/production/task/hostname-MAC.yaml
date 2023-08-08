@@ -5,8 +5,11 @@
   tasks:
     - name: Obtain MAC address of ens3
       shell: "/usr/sbin/ip link show ens3 | /bin/grep link/ether | /usr/bin/awk '{print $2}'"
+      async: 10  # allow max 10 seconds for the command to complete
+      poll: 5    # check every 5 seconds if the command has completed
       register: mac_address
       changed_when: false
+      failed_when: mac_address.stdout == ""
 
     - name: Extract the last 4 characters from the MAC address (excluding colon)
       set_fact:
@@ -25,5 +28,4 @@
     - name: Restart Network Service
       service:
         name: networking  # for Ubuntu
-        # name: NetworkManager  # for CentOS/Fedora
         state: restarted
