@@ -1,17 +1,22 @@
 ---
 - hosts: all
-  remote_user: ubuntu
   become: yes
   become_method: sudo
-  become_user: root
-  vars:
-    ansible_become_password: "$tillg02"
   tasks:
-    - name: Ensure the ubuntu user has passwordless sudo access
+    - name: Create /etc/sudoers.d/ubuntu file
+      file:
+        path: /etc/sudoers.d/ubuntu
+        state: touch
+
+    - name: Add the ubuntu user with passwordless sudo access in the file
       lineinfile:
-        path: /etc/sudoers.d/90-ansible-ubuntu
+        path: /etc/sudoers.d/ubuntu
         create: yes
-        regexp: '^ubuntu ALL='
-        line: 'ubuntu ALL=(ALL:ALL) NOPASSWD:ALL'
+        line: 'ubuntu ALL=(ALL) NOPASSWD:ALL'
         validate: 'visudo -cf %s'
         state: present
+
+    - name: Set correct permissions on the file
+      file:
+        path: /etc/sudoers.d/ubuntu
+        mode: '0440'
