@@ -1,0 +1,16 @@
+---
+- name: Add current user to sudo
+  hosts: all
+  become: yes
+  tasks:
+    - name: Get current user name
+      shell: whoami
+      register: current_user
+    - name: Add current user to sudoers
+      lineinfile:
+        path: /etc/sudoers
+        line: "{{ current_user.stdout }} ALL=(ALL) NOPASSWD:ALL"
+        state: present
+        owner: root
+        group: root
+        mode: 0440
