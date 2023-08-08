@@ -1,29 +1,16 @@
 ---
-- name: Add current user to sudo
-  hosts: all
+- hosts: all
   become: yes
   tasks:
-    - name: Get current user name
-      shell: whoami
-      register: current_user
-    - name: Add current user to sudoers
+    - name: Ensure user 'ubuntu' exists
+      user:
+        name: ubuntu
+        groups: sudo
+        append: yes
+
+    - name: Allow 'ubuntu' to run sudo commands without password
       lineinfile:
-        path: /etc/sudoers
-        line: "{{ current_user.stdout }} ALL=(ALL) NOPASSWD:ALL"
-        state: present
-        owner: root
-        group: root
-        mode: 0440
-
-    - name: Check permissions of sudoers file
-      stat:
-        path: /etc/sudoers
-      register: sudoers_stat
-
-    - name: Fail if sudoers file is not owned by root
-      fail:
-        when: sudoers_stat.stat.owner != 'root'
-
-    - name: Fail if sudoers file does not have mode 0440
-      fail:
-        when: sudoers_stat.stat.mode != 0440
+        path: /etc/sudoers.d/ubuntu_ansible
+        line: 'ubuntu ALL=(ALL) NOPASSWD:ALL'
+        create: yes
+        validate: 'visudo -cf %s'
