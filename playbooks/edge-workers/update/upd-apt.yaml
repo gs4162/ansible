@@ -7,4 +7,5 @@
       apt:
         upgrade: yes
         update_cache: yes
+        lock_timeout: 300
         force_apt_get: yes
