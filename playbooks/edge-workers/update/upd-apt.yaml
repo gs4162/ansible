@@ -1,7 +1,8 @@
 ---
 - hosts: all
   become: yes
-  tasks:
+
+   tasks:
     - name: Update apt repo and cache on all Debian/Ubuntu boxes
       apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
 
@@ -11,44 +12,6 @@
     - name: Check if a reboot is needed on all servers
       register: reboot_required_file
       stat: path=/var/run/reboot-required get_md5=no
-a# This is an Ansible playbook written in YAML format
-
-# Define the target hosts for the playbook
-- hosts: all
-  # Become allows privilege escalation. In this case, tasks will be executed with superuser privileges (like using sudo)
-  become: yes
-  tasks:  # List of tasks to be executed
-
-    # Task 1: Update the apt package repository and cache on all Debian/Ubuntu servers
-    - name: Update apt repo and cache on all Debian/Ubuntu boxes
-      apt:  # Ansible module for apt package manager used by Debian/Ubuntu
-        update_cache=yes  # Update the cache of available packages
-        force_apt_get=yes  # Force usage of apt-get instead of other apt tools
-        cache_valid_time=3600  # The cache is considered valid for 3600 seconds (1 hour)
-
-    # Task 2: Upgrade all packages on the servers
-    - name: Upgrade all packages on servers
-      apt:  # Ansible module for apt package manager
-        upgrade=dist  # Upgrade all packages to their latest version
-        force_apt_get=yes  # Force usage of apt-get
-
-    # Task 3: Check if there's a file indicating a system reboot is required. This is often created after kernel updates.
-    - name: Check if a reboot is needed on all servers
-      register: reboot_required_file  # Register a variable to store the result of the task
-      stat:  # Ansible module to retrieve file or file system status
-        path=/var/run/reboot-required  # Path to the file that indicates if a reboot is required
-        get_md5=no  # No need to get the MD5 checksum of the file
-
-    # Task 4: If a reboot is needed (due to a kernel update for instance), perform the reboot
-    - name: Reboot the box if kernel updated
-      reboot:  # Ansible module to reboot a machine
-        msg: "Reboot initiated by Ansible for kernel updates"  # Message to be displayed during the reboot
-        connect_timeout: 5  # Time (in seconds) to wait for the host to reconnect after rebooting
-        reboot_timeout: 300  # Maximum time (in seconds) to wait for the machine to reboot
-        pre_reboot_delay: 0  # Time (in seconds) to wait before issuing the reboot command
-        post_reboot_delay: 30  # Time (in seconds) to wait after issuing the reboot command, but before validating the host has rebooted
-        test_command: uptime  # Command to run on the host after reboot to validate it has been successfully rebooted
-      when: reboot_required_file.stat.exists  # This task will only execute if the reboot-required file exists
 
     - name: Reboot the box if kernel updated
       reboot:
