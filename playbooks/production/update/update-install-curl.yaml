@@ -5,6 +5,35 @@
   become: true
   tasks:
 
+    - name: Ensure APT lock is absent
+      file:
+        path: /var/lib/apt/lists/lock
+        state: absent
+    - name: Check current user and sudo capabilities
+      command: whoami && sudo -l
+      register: debug_output
+
+    - name: Display debug output
+      debug:
+        var: debug_output.stdout_lines
+
+    - name: update apt packages
+      apt:
+        update_cache: yes
+      become: true
+      become_method: sudo
+      register: result
+    - name: Check current user and sudo capabilities
+      command: whoami && sudo -l
+      register: debug_output
+
+    - name: Display debug output
+      debug:
+        var: debug_output.stdout_lines
+
+    
+    
+    
     - name: update apt packages
       apt:
         update_cache: yes
