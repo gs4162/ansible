@@ -1,10 +1,19 @@
 ---
 - hosts: all
+  ansible_user: ubuntu
+  ansible_become: yes
   vars:
     ansible_python_interpreter: /usr/bin/python3
   become: true
   tasks:
-
+    - name: Create a test file with root permissions
+      file:
+        path: /tmp/test_root_file
+        state: touch
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
     - name: Ensure APT lock is absent
       file:
         path: /var/lib/apt/lists/lock
