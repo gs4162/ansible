@@ -4,8 +4,18 @@
   vars:
     base_url: 'http://192.168.12.190:9091/transmission/rpc'
     transmission_header: 'X-Transmission-Session-Id'
-    session_id: 'L3C1NPB0mPsUjfgpNlHC3TN1HEA1cN3LStGQcVEZcGz3pZ8Z'
   tasks:
+    - name: Get Session ID
+      uri:
+        url: "{{ base_url }}"
+        method: GET
+        status_code: 409
+      register: result
+      ignore_errors: true
+
+    - set_fact:
+        session_id: "{{ result.headers.x_transmission_session_id }}"
+
     - name: Pause all torrents
       uri:
         url: "{{ base_url }}"
