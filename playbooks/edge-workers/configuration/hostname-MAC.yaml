@@ -1,6 +1,8 @@
 ---
 - hosts: all
   become: yes
+  vars:
+    hostname_prefix: "missing"  # Default value, in case the variable isn't provided externally
   tasks:
     - name: Obtain MAC address of enp1s0
       shell: "/usr/sbin/ip link show enp1s0 | /bin/grep link/ether | /usr/bin/awk '{print $2}'"
@@ -16,14 +18,8 @@
         msg: "Last four characters of MAC without colons: {{ last_four_chars }}"
 
     - name: Set the hostname using alternative method
-      shell: "echo \"jamesscottworker-{{ last_four_chars }}\" | sudo tee /etc/hostname && sudo /bin/hostname -F /etc/hostname"
-      when: ansible_hostname != "jamesscottworker-" + last_four_chars
+      shell: "echo \"{{ hostname_prefix }}-{{ last_four_chars }}\" | sudo tee /etc/hostname && sudo /bin/hostname -F /etc/hostname"
+      when: ansible_hostname != "{{ hostname_prefix }}-" + last_four_chars
       async: 10  # allow max 10 seconds for the command to complete
       poll: 5    # check every 5 seconds if the command has completed
       notify: Restart Network Service
-
-  handlers:
-    - name: Restart Network Service
-      service:
-        name: networking  # for Ubuntu
-        state: restarted
