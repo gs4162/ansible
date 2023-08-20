@@ -1,61 +1,38 @@
 ---
 - hosts: all
-  vars:
-    ansible_ssh_user: ubuntu
-    ansible_python_interpreter: /usr/bin/python3
-  become: true
+#  become: true
   tasks:
-    - name: Create a test file with root permissions
-      file:
-        path: /tmp/test_root_file
-        state: touch
-        owner: root
-        group: root
-        mode: '0644'
 
-    - name: Ensure APT lock is absent
-      file:
-        path: /var/lib/apt/lists/lock
-        state: absent
-
-    - name: Check current user and sudo capabilities
-      command: whoami && sudo -l
-      register: debug_output
-
-    - name: Display debug output
-      debug:
-        var: debug_output.stdout_lines
-
-    - name: Update apt packages
+    - name: update apt packages
       apt:
         update_cache: yes
       register: result
 
-    - name: Install curl
+    - name: install curl
       apt:
         name: curl
         state: present
 
-    - name: Upgrade all apt packages
+    - name: upgrade all apt packages
       apt:
         upgrade: 'yes'
-      register: result_upgrade
+      register: result
 
-    - name: Check if reboot is required
+    - name: check if reboot is required
       stat:
         path: /var/run/reboot-required
       register: reboot_required
-      
-    - name: Print message if reboot is required
+
+    - name: print message if reboot is required
       debug:
         msg: "System reboot is required"
       when: reboot_required.stat.exists
 
-    - name: Print message if reboot is not required
+    - name: print message if reboot is not required
       debug:
         msg: "System reboot is not required"
       when: not reboot_required.stat.exists
 
-    - name: Print update result
+    - name: print update result
       debug:
-        msg: "APT result: {{ result_upgrade }}"
+        msg: "APT result: {{ result }}"
