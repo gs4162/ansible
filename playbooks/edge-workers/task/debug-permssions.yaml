@@ -1,0 +1,48 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: Check the user ansible is running as
+      command: whoami
+      register: whoami_result
+      changed_when: false
+
+    - name: Print the user
+      debug:
+        msg: "Running as user: {{ whoami_result.stdout }}"
+
+    - name: Check permissions for /var/lib/apt/lists/
+      command: ls -ld /var/lib/apt/lists/
+      register: apt_lists_permissions
+      changed_when: false
+
+    - name: Print permissions for /var/lib/apt/lists/
+      debug:
+        msg: "{{ apt_lists_permissions.stdout }}"
+
+    - name: Check permissions for /var/lib/apt/lists/lock
+      command: ls -l /var/lib/apt/lists/lock
+      register: apt_lists_lock_permissions
+      changed_when: false
+
+    - name: Print permissions for /var/lib/apt/lists/lock
+      debug:
+        msg: "{{ apt_lists_lock_permissions.stdout }}"
+      ignore_errors: yes
+
+    - name: Attempt to create a file in /var/lib/apt/lists/
+      command: touch /var/lib/apt/lists/testfile
+      register: touch_test_result
+      changed_when: true
+
+    - name: Print result of touch command
+      debug:
+        msg: "Touch command result: {{ touch_test_result }}"
+      when: touch_test_result is changed
+
+    - name: Clean up testfile
+      file:
+        path: /var/lib/apt/lists/testfile
+        state: absent
+      when: touch_test_result is changed
