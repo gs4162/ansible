@@ -1,0 +1,19 @@
+---
+- hosts: all
+  become: true
+  vars:
+    base_url: 'http://192.168.12.190:9091/transmission/rpc'
+    transmission_header: 'X-Transmission-Session-Id'
+    session_id: 'L3C1NPB0mPsUjfgpNlHC3TN1HEA1cN3LStGQcVEZcGz3pZ8Z'
+  tasks:
+    - name: Pause all torrents
+      uri:
+        url: "{{ base_url }}"
+        method: POST
+        headers:
+          "{{ transmission_header }}": "{{ session_id }}"
+        body_format: json
+        body:
+          method: "torrent-stop"
+          arguments:
+            ids: "all"
