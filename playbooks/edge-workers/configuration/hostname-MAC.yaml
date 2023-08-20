@@ -17,9 +17,9 @@
       debug:
         msg: "Last four characters of MAC without colons: {{ last_four_chars }}"
 
-    - name: Set the hostname using alternative method
+    - name: Set the hostname 
       shell: "echo \"{{ hostname_prefix }}-{{ last_four_chars }}\" | sudo tee /etc/hostname && sudo /bin/hostname -F /etc/hostname"
       when: ansible_hostname != "{{ hostname_prefix }}-" + last_four_chars
       async: 10  # allow max 10 seconds for the command to complete
       poll: 5    # check every 5 seconds if the command has completed
-      notify: Restart Network Service
+
