@@ -1,1 +1,49 @@
 
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: update apt packages
+      apt:
+        update_cache: yes
+      register: result
+
+    - name: install vim
+      apt:
+        name: vim
+        state: present
+
+    - name: install curl
+      apt:
+        name: curl
+        state: present
+
+    - name: install lm-sensors
+      apt:
+        name: lm-sensors
+        state: present
+
+    - name: upgrade all apt packages
+      apt:
+        upgrade: 'yes'
+      register: result_upgrade
+
+    - name: check if reboot is required
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: print message if reboot is required
+      debug:
+        msg: "System reboot is required"
+      when: reboot_required.stat.exists
+
+    - name: print message if reboot is not required
+      debug:
+        msg: "System reboot is not required"
+      when: not reboot_required.stat.exists
+
+    - name: print update result
+      debug:
+        msg: "APT result: {{ result }}"
