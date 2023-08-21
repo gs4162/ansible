@@ -1,6 +1,8 @@
 ---
 - hosts: all
   become: true
+  vars:
+    defaultusers: "ubuntu"  # Declare the variable here
   tasks:
     - name: Install dependencies
       apt:
