@@ -1,0 +1,53 @@
+---
+- hosts: all
+  become: true
+  vars:
+    username: ubuntu
+  tasks:
+    - name: Check if /opt/ansible directory exists
+      stat: 
+        path: /opt/ansible
+      register: dir_status
+      
+    - name: Create /opt/ansible directory if it does not exist
+      file:
+        path: /opt/ansible
+        state: directory
+        mode: '0755'
+      when: not dir_status.stat.exists
+      
+    - name: Check if /opt/ansible/portainer_data directory exists
+      stat: 
+        path: /opt/ansible/portainer_data
+      register: portainer_data_dir_status
+      
+    - name: Create /opt/ansible/portainer_data directory if it does not exist
+      file:
+        path: /opt/ansible/portainer_data
+        state: directory
+        mode: '0755'
+      when: not portainer_data_dir_status.stat.exists
+
+    - name: Create/Overwrite docker-compose.yaml for Portainer
+      copy:
+        dest: "/opt/ansible/docker-compose.yaml"
+        content: |
+          version: '3.1'
+          services:
+            portainer:
+              image: portainer/portainer
+              restart: always
+              ports:
+                - 9000:9000
+                - 8000:8000
+              volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+                - /opt/ansible/portainer_data:/data
+
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+
+    - name: Start Docker Compose
+      shell: cd /opt/ansible && docker compose up -d
