@@ -1,0 +1,43 @@
+---
+- hosts: all
+  become: true
+  vars:
+    base_directory: /opt/ansible
+    agent_data_directory: "{{ base_directory }}/agent_data"
+    docker_compose_file: "{{ base_directory }}/docker-compose-agent.yaml"
+  
+  tasks:
+    - name: Ensure base directory exists
+      file:
+        path: "{{ base_directory }}"
+        state: directory
+        mode: '0755'
+
+    - name: Ensure agent data directory exists
+      file:
+        path: "{{ agent_data_directory }}"
+        state: directory
+        mode: '0755'
+
+    - name: Create/Overwrite docker-compose-agent.yaml for Portainer Agent
+      copy:
+        dest: "{{ docker_compose_file }}"
+        content: |
+          version: '3.1'
+          services:
+            agent:
+              image: portainer/agent:latest
+              restart: always
+              environment:
+                AGENT_CLUSTER_ADDR: agent
+              volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+                - /var/lib/docker/volumes:/var/lib/docker/volumes
+
+    - name: Ensure Docker service is started
+      systemd:
+        name: docker
+        state: started
+
+    - name: Deploy Portainer Agent using Docker Compose
+      shell: cd {{ base_directory }} && docker-compose -f {{ docker_compose_file }} up -d
