@@ -40,4 +40,4 @@
         state: started
 
     - name: Deploy Portainer Agent using Docker Compose
-      shell: cd {{ base_directory }} && docker-compose -f {{ docker_compose_file }} up -d
+      shell: cd {{ base_directory }} && docker compose -f {{ docker_compose_file }} up -d
