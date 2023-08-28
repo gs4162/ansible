@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+
+  - name: Check if K3s server is installed
+    stat:
+      path: /usr/local/bin/k3s-uninstall.sh
+    register: k3s_server_stat
+
+  - name: Check if K3s agent is installed
+    stat:
+      path: /usr/local/bin/k3s-agent-uninstall.sh
+    register: k3s_agent_stat
+
+  - name: Uninstall K3s server
+    command: /usr/local/bin/k3s-uninstall.sh
+    when: k3s_server_stat.stat.exists
+
+  - name: Uninstall K3s agent
+    command: /usr/local/bin/k3s-agent-uninstall.sh
+    when: k3s_agent_stat.stat.exists
