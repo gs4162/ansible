@@ -1,0 +1,32 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    hostname_prefix: "missing"  # Default value, in case the variable isn't provided externally
+  tasks:
+    - name: Obtain MAC address of enp1s0
+      shell: "/usr/sbin/ip link show enp1s0 | /bin/grep link/ether | /usr/bin/awk '{print $2}'"
+      register: mac_address
+      changed_when: false
+
+    - name: Extract the last 4 characters from the MAC address (excluding colon)
+      set_fact:
+        last_four_chars: "{{ mac_address.stdout.replace(':', '')[-4:] }}"
+
+    - name: Print the last four characters for debugging
+      debug:
+        msg: "Last four characters of MAC without colons: {{ last_four_chars }}"
+
+    - name: Set the hostname 
+      shell: "echo \"{{ hostname_prefix }}-{{ last_four_chars }}\" | sudo tee /etc/hostname && sudo /bin/hostname -F /etc/hostname"
+      when: ansible_hostname != hostname_prefix ~ "-" ~ last_four_chars
+      async: 10  # allow max 10 seconds for the command to complete
+      poll: 5    # check every 5 seconds if the command has completed
+
+    # This task updates the /etc/hosts file with the new hostname
+    - name: Update /etc/hosts with new hostname
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127.0.1.1'
+        line: "127.0.1.1 {{ hostname_prefix }}-{{ last_four_chars }}"
+      when: ansible_hostname != hostname_prefix ~ "-" ~ last_four_chars
