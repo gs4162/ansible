@@ -1,5 +1,5 @@
 ---
-- name: Install and Configure MicroK8s
+- name: Install and Configure MicroK8s and MicroCeph
   hosts: all
   become: yes
   vars:
@@ -7,6 +7,13 @@
   tasks:
     - name: Install MicroK8s from the Snap Store
       command: snap install microk8s --channel=1.28/stable --classic
+      args:
+        timeout: 120 # timeout in seconds
+
+    - name: Install MicroCeph from the Snap Store
+      command: snap install microceph --channel=latest/edge
+      args:
+        timeout: 120 # timeout in seconds
 
     - name: Create .kube directory
       become: no
@@ -31,6 +38,10 @@
         groups: microk8s
         append: yes
 
+    # Using shell module instead of command, to bypass the potential issues with newgrp
     - name: Apply new group to the current session
-      command: newgrp microk8s
+      shell: newgrp microk8s
       become: no
+      args:
+        executable: /bin/bash
+        timeout: 60 # timeout in seconds
