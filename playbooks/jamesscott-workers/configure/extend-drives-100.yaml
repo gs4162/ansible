@@ -1,0 +1,20 @@
+---
+- name: Extend Disk Space
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - lvm2
+        state: present
+
+    - name: Extend the Logical Volume
+      shell: |
+        lvextend -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
+      ignore_errors: yes
+
+    - name: Resize the File System
+      shell: |
+        resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv
+      ignore_errors: yes
