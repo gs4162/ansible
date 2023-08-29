@@ -1,0 +1,36 @@
+---
+- name: Install and Configure MicroK8s
+  hosts: all
+  become: yes
+  vars:
+    ansible_user: ubuntu
+  tasks:
+    - name: Install MicroK8s from the Snap Store
+      command: snap install microk8s --channel=1.28/stable --classic
+
+    - name: Create .kube directory
+      become: no
+      file:
+        path: "~/.kube"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: Change ownership of the .kube directory
+      file:
+        path: "~/.kube"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: Add the user to the microk8s group
+      user:
+        name: "{{ ansible_user }}"
+        groups: microk8s
+        append: yes
+
+    - name: Apply new group to the current session
+      command: newgrp microk8s
+      become: no
