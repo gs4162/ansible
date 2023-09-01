@@ -16,6 +16,18 @@ sudo iptables -t nat -D PREROUTING -p udp --dport 44818 -j DNAT 2>/dev/null
 sudo iptables -D FORWARD -p tcp --dport 44818 -j ACCEPT 2>/dev/null
 sudo iptables -D FORWARD -p udp --dport 44818 -j ACCEPT 2>/dev/null
 
+# Reset iptables to default (Uncomment the following lines if you need to reset iptables)
+ sudo iptables -F
+ sudo iptables -t nat -F
+ sudo iptables -t mangle -F
+ sudo iptables -X
+ sudo iptables -t nat -X
+ sudo iptables -t mangle -X
+ sudo iptables -P INPUT ACCEPT
+ sudo iptables -P FORWARD ACCEPT
+ sudo iptables -P OUTPUT ACCEPT
+ sudo netfilter-persistent save
+
 # Ask user for the PLC IP address
 read -p "Please enter the PLC IP address: " plc_ip
 
