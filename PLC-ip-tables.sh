@@ -10,7 +10,10 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo deb
 sudo DEBIAN_FRONTEND=noninteractive apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent
 
-# Remove previous rules
+# Ask user for the PLC IP address
+read -p "Please enter the PLC IP address: " plc_ip
+
+# Remove previous rules (now placed after asking for plc_ip)
 sudo iptables -t nat -D PREROUTING -p tcp --dport 44818 -j DNAT --to-destination $plc_ip:44818 2>/dev/null
 sudo iptables -t nat -D PREROUTING -p udp --dport 44818 -j DNAT --to-destination $plc_ip:44818 2>/dev/null
 sudo iptables -D FORWARD -p tcp -d $plc_ip --dport 44818 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT 2>/dev/null
@@ -30,9 +33,6 @@ sudo iptables -P OUTPUT ACCEPT
 # Save iptables rules
 sudo netfilter-persistent save
 
-# Ask user for the PLC IP address
-read -p "Please enter the PLC IP address: " plc_ip
-
 # Extract the Tailscale IP address from the system
 tailscale_ip=$(ip addr show tailscale0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 
@@ -46,7 +46,7 @@ fi
 sudo iptables -t nat -A PREROUTING -p tcp -d $tailscale_ip --dport 44818 -j DNAT --to-destination $plc_ip:44818
 sudo iptables -t nat -A PREROUTING -p udp -d $tailscale_ip --dport 44818 -j DNAT --to-destination $plc_ip:44818
 sudo iptables -A FORWARD -p tcp -d $plc_ip --dport 44818 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-sudo iptables -A FORWARD -p udp -d $plc_ip --dport 44818 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT  # Corrected here
+sudo iptables -A FORWARD -p udp -d $plc_ip --dport 44818 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 
 # Save iptables rules
 sudo netfilter-persistent save
@@ -57,7 +57,7 @@ echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale
 sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
 
 # Activate Tailscale with the advertised routes
-sudo tailscale up --advertise-routes=$plc_network
+sudo tailscale up --advertise-routes=$plc_ip/32  # Assuming the PLC is a single IP, not a network
 
 # Remove this script
 rm -- "$0"
