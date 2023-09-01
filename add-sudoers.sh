@@ -1,25 +1,32 @@
 #!/bin/bash
 
-# Check if the script is run as root
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root"
-  exit
+# Check if iptables-persistent is installed and install it if not
+dpkg -l | grep -qw iptables-persistent || sudo apt-get update && sudo apt-get install -y iptables-persistent
+
+# Ask user for the PLC IP address
+read -p "Please enter the PLC IP address: " plc_ip
+
+# Extract the Tailscale IP address from the system
+tailscale_ip=$(ip addr show tailscale0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+
+# Check if Tailscale IP was successfully extracted
+if [[ -z "$tailscale_ip" ]]; then
+    echo "Error: Could not find Tailscale IP."
+    exit 1
 fi
 
-# Create a new sudoers file for the ubuntu user
-echo "ubuntu ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ubuntu
+# Configure iptables rules for TCP and UDP port forwarding
+sudo iptables -t nat -A PREROUTING -p tcp -d $tailscale_ip --dport 44818 -j DNAT --to-destination $plc_ip:44818
+sudo iptables -t nat -A PREROUTING -p udp -d $tailscale_ip --dport 44818 -j DNAT --to-destination $plc_ip:44818
 
-# Set appropriate permissions for the file
-chmod 440 /etc/sudoers.d/ubuntu
+# Configure iptables rules for FORWARD chain
+sudo iptables -A FORWARD -p tcp -d $plc_ip --dport 44818 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+sudo iptables -A FORWARD -p udp -d $plc_ip --dport 44818 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 
-# Validate all sudoers files
-if visudo -c; then
-  echo "Sudoers file valid"
-else
-  echo "Sudoers file invalid, removing..."
-  rm /etc/sudoers.d/ubuntu
-  exit
-fi
+# Save iptables rules
+sudo netfilter-persistent save
 
-# Remove the script itself
+echo "iptables configured and saved successfully."
+
+# Remove this script
 rm -- "$0"
