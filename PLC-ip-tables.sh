@@ -4,8 +4,11 @@
 echo "Debug: Current directory and files"
 ls -al
 
-# Check if iptables-persistent is installed and install it if not
-dpkg -l | grep -qw iptables-persistent || sudo apt-get update && sudo apt-get install -y iptables-persistent
+# Preconfigure and install iptables-persistent if not already installed
+echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+sudo DEBIAN_FRONTEND=noninteractive apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent
 
 # Ask user for the PLC IP address
 read -p "Please enter the PLC IP address: " plc_ip
