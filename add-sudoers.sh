@@ -6,6 +6,10 @@ dpkg -l | grep -qw iptables-persistent || sudo apt-get update && sudo apt-get in
 # Ask user for the PLC IP address
 read -p "Please enter the PLC IP address: " plc_ip
 
+# Extract the network part of the PLC IP address for Tailscale
+IFS='.' read -ra ADDR <<< "$plc_ip"
+plc_network="${ADDR[0]}.${ADDR[1]}.${ADDR[2]}.0/24"
+
 # Extract the Tailscale IP address from the system
 tailscale_ip=$(ip addr show tailscale0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 
@@ -27,6 +31,12 @@ sudo iptables -A FORWARD -p udp -d $plc_ip --dport 44818 -m state --state NEW,ES
 sudo netfilter-persistent save
 
 echo "iptables configured and saved successfully."
+
+# Setup Tailscale sub-routing
+echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
+echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
+sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
+sudo tailscale up --advertise-routes=$plc_network
 
 # Remove this script
 rm -- "$0"
