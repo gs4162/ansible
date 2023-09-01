@@ -10,15 +10,18 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo deb
 sudo DEBIAN_FRONTEND=noninteractive apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent
 
+# Clear existing iptables rules for port 44818
+sudo iptables -t nat -D PREROUTING -p tcp --dport 44818 -j DNAT 2>/dev/null
+sudo iptables -t nat -D PREROUTING -p udp --dport 44818 -j DNAT 2>/dev/null
+sudo iptables -D FORWARD -p tcp --dport 44818 -j ACCEPT 2>/dev/null
+sudo iptables -D FORWARD -p udp --dport 44818 -j ACCEPT 2>/dev/null
+
 # Ask user for the PLC IP address
 read -p "Please enter the PLC IP address: " plc_ip
 
 # Extract the network part of the PLC IP address for Tailscale
 IFS='.' read -ra ADDR <<< "$plc_ip"
 plc_network="${ADDR[0]}.${ADDR[1]}.${ADDR[2]}.0/24"
-
-# Debug: Print plc_network
-echo "Debug: plc_network is set to $plc_network"
 
 # Extract the Tailscale IP address from the system
 tailscale_ip=$(ip addr show tailscale0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
@@ -40,16 +43,13 @@ sudo iptables -A FORWARD -p udp -d $plc_ip --dport 44818 -m state --state NEW,ES
 # Save iptables rules
 sudo netfilter-persistent save
 
-echo "iptables configured and saved successfully."
-
 # Setup Tailscale sub-routing
 echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
 echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
 sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
 
-# Debug: Run Tailscale command and print its return code
+# Activate Tailscale with the advertised routes
 sudo tailscale up --advertise-routes=$plc_network
-echo "Tailscale command returned $?"
 
 # Remove this script
 rm -- "$0"
