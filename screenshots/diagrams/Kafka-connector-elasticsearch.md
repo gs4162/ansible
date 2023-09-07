@@ -10,6 +10,8 @@ graph TD;
 
   subgraph MariaDBContainer
     MariaDB[MariaDB]
+    DBApp[Optional DB Application]
+    MariaDB -->|DB Query| DBApp
   end
 
   subgraph KafkaCluster
@@ -17,7 +19,7 @@ graph TD;
     Zookeeper[ZooKeeper]
     KafkaConnect[Kafka Connect with Elasticsearch Connector]
     Kafka --> Zookeeper
-    Kafka -->|Data Pipeline| KafkaConnect
+    Kafka -->|Stream to Connect| KafkaConnect
   end
   
   subgraph ElasticsearchCluster
@@ -32,9 +34,9 @@ graph TD;
     PyScript[Python Script]
   end
 
-  sensor -->|MQTT Publish| MQTT
-  MQTT -->|MQTT Subscribe| PyScript
-  PyScript -->|SQL INSERT| MariaDB
-  PyScript -->|Kafka Produce| Kafka
-  KafkaConnect -->|Sink Data| Elasticsearch
-  Elasticsearch -->|Data Visualization| Kibana
+  sensor -->|IoT Data to MQTT| MQTT
+  MQTT -->|Subscribe| PyScript
+  PyScript -->|SQL to MariaDB| MariaDB
+  PyScript -->|To Kafka| Kafka
+  KafkaConnect -->|To Elasticsearch| Elasticsearch
+  Elasticsearch -->|Visualization| Kibana
