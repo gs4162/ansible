@@ -18,6 +18,10 @@ curl -o PLC-ip-tables-v2.sh https://raw.githubusercontent.com/gs4162/ansible/mas
 chmod +x PLC-ip-tables-v2.sh
 sudo ./PLC-ip-tables-v2.sh
 
+curl -o PLC-ip-tables-v3.sh https://raw.githubusercontent.com/gs4162/ansible/master/PLC-ip-tables-v3.sh
+chmod +x PLC-ip-tables-v3.sh
+sudo ./PLC-ip-tables-v3.sh
+
 
 # default network
 
