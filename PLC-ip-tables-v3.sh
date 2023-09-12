@@ -22,10 +22,11 @@ sudo iptables -t nat -A PREROUTING -p udp -d "$tailscale_ip" --dport 44818 -j DN
 sudo iptables -A FORWARD -p tcp -d "$plc_ip" --dport 44818 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 sudo iptables -A FORWARD -p udp -d "$plc_ip" --dport 44818 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 
-# Ensure netfilter-persistent is installed and save the iptables rules
+# Ensure netfilter-persistent is installed, saved and enabled on startup
 sudo DEBIAN_FRONTEND=noninteractive apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent
 sudo netfilter-persistent save
+sudo systemctl enable netfilter-persistent
 
 # Delete the script itself
 rm -f "$SCRIPT_PATH"
