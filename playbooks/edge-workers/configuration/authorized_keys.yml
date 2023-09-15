@@ -18,11 +18,16 @@
         owner: ubuntu
         group: ubuntu
 
+    - name: Slurp fetched authorized_keys_tmp file
+      slurp:
+        src: /home/ubuntu/.ssh/authorized_keys_tmp
+      register: slurp_keys
+
     - name: Set fetched authorized_keys as authorized keys for ubuntu user
       authorized_key:
         user: ubuntu
         state: present
-        key: "{{ lookup('file', '/home/ubuntu/.ssh/authorized_keys_tmp') }}"
+        key: "{{ slurp_keys['content'] | b64decode }}"
         path: "/home/ubuntu/.ssh/authorized_keys"
 
     - name: Remove temporary authorized_keys_tmp
