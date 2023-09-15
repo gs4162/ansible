@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: true
+    - name: Create new user named ansible
+      user:
+        name: ansible
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Ensure .ssh directory exists for ansible user
+      file:
+        path: /home/ansible/.ssh
+        state: directory
+        owner: ansible
+        group: ansible
+        mode: '0700'
+
+    - name: Add authorized key for ansible user
+      authorized_key:
+        user: ansible
+        state: present
+        key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDAIdnOxNvcp9h/Va5FAJceuATFBULl2daXKYgO9Epo8z4EW0+wBUAdUcd56BYjWSc6u0KjYrnisDDNQczwrCVZznxN1w2kCkWNurPALyTwbrGjnzyvqYcLuycQdN6INfdg3RRrmpp4DNeXsrITIidpXtXijvQ9M9CU08Jjw0ZvFd0mDmXtFsODD7Eztpu0wsbzPBQ9nM56BMxDzqgx2jbqFqZDsNXJAcoOyENNn4R0QV22e16vv40BVX3d90gQ2N4bwgcgOdGxvmFx9jSp+gpaxREpwoNHahZcx09zNb2boIdl1NcnO+k+lSfeCdutkXL9qtPakbTKt3XCR4o3nDpTiV6PXEAzHuVAracaP64xFhy/m3EuLM/OwXC+M6wi7FTuVw1Srrwa+DrWcvXlnDSAPANec2PRRlci/bNF+OtZJZr+tEM7MewMBlGzsrp1q1nN7KJ1TXuqCxk6E/IjvPs7wYhDBRHz0VZBWH+RRiXRZcfXNQgNc/7/2BGJdP0YsHvEKIBNPrgRpF/0TRPcbx0bOn4Uac5wfmgRuX6F7LkzWTvl2ETRBFgoB0eDmA6mTQiM+1750OO/thKxP2bR1qeXipHuJ4eo9LeGhVRfi1ZG3USz61t3zaVW1A5M7sVwdmz7Oqs86Q26GHFG1bZxZF0ME9whUfAru4n8MwLx4eZczw== gs4162@HC-NZ-LT97"
