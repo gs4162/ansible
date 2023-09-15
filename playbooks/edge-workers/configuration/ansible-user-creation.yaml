@@ -1,6 +1,7 @@
 ---
 - hosts: all
   become: true
+  tasks:
     - name: Create new user named ansible
       user:
         name: ansible
