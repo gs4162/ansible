@@ -8,15 +8,20 @@
         name: glances
         state: present
 
-    - name: Get glances data in JSON format
+    - name: Export glances data to a temporary JSON file
       command:
-        cmd: glances -j
-      register: glances_output
+        cmd: "glances --export-json-file /tmp/glances.json"
+      changed_when: false
+
+    - name: Get the contents of the glances JSON file
+      slurp:
+        src: /tmp/glances.json
+      register: glances_file_content
       changed_when: false
 
     - name: Set glances data variable
       set_fact:
-        glances_data: "{{ glances_output.stdout | from_json }}"
+        glances_data: "{{ (glances_file_content.content | b64decode | from_json) }}"
 
     - name: Display CPU stats
       debug:
@@ -31,3 +36,8 @@
         msg: "Disk IO read: {{ glances_data['diskio'][0]['read_bytes'] }}, write: {{ glances_data['diskio'][0]['write_bytes'] }}"
 
     # ... Add more debug statements for other desired stats ...
+
+    - name: Clean up the temporary glances JSON file
+      file:
+        path: /tmp/glances.json
+        state: absent
