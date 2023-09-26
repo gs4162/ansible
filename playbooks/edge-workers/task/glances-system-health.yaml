@@ -1,0 +1,33 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    
+    - name: Ensure glances is installed
+      apt:
+        name: glances
+        state: present
+
+    - name: Get glances data in JSON format
+      command:
+        cmd: glances -j
+      register: glances_output
+      changed_when: false
+
+    - name: Set glances data variable
+      set_fact:
+        glances_data: "{{ glances_output.stdout | from_json }}"
+
+    - name: Display CPU stats
+      debug:
+        msg: "CPU user: {{ glances_data['cpu']['user'] }}, system: {{ glances_data['cpu']['system'] }}, idle: {{ glances_data['cpu']['idle'] }}"
+
+    - name: Display Memory stats
+      debug:
+        msg: "Memory used: {{ glances_data['mem']['used'] }}, free: {{ glances_data['mem']['free'] }}, total: {{ glances_data['mem']['total'] }}"
+
+    - name: Display Disk IO stats
+      debug:
+        msg: "Disk IO read: {{ glances_data['diskio'][0]['read_bytes'] }}, write: {{ glances_data['diskio'][0]['write_bytes'] }}"
+
+    # ... Add more debug statements for other desired stats ...
