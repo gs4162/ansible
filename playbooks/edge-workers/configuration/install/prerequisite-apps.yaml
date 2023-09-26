@@ -1,4 +1,3 @@
-
 ---
 - hosts: all
   become: true
@@ -22,6 +21,12 @@
     - name: install lm-sensors
       apt:
         name: lm-sensors
+        state: present
+
+    # Added task to install glances
+    - name: install glances
+      apt:
+        name: glances
         state: present
 
     - name: upgrade all apt packages
