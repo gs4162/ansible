@@ -1,10 +1,20 @@
 #!/bin/bash
 
-# Check if jq is installed
-if ! command -v jq &> /dev/null; then
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" &>/dev/null
+}
+
+# Install jq if not found
+if ! command_exists jq; then
     echo "jq not found, installing..."
-    sudo apt update
-    sudo apt install -y jq
+    sudo apt update && sudo apt install -y jq
+
+    # Check again after attempting to install
+    if ! command_exists jq; then
+        echo "Failed to install jq. Exiting."
+        exit 1
+    fi
 fi
 
 # Navigate to the .ssh directory
