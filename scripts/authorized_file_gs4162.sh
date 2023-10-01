@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Check if jq is installed
+if ! command -v jq &> /dev/null; then
+    echo "jq not found, installing..."
+    sudo apt update
+    sudo apt install -y jq
+fi
+
 # Navigate to the .ssh directory
 cd ~/.ssh/
 
