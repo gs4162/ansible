@@ -1,0 +1,70 @@
+---
+- hosts: all
+  become: true
+  vars:
+    username: ubuntu
+  tasks:
+    - name: Check if /opt/ignition directory exists
+      stat: 
+        path: /opt/ignition
+      register: dir_status
+      
+    - name: Create /opt/ignition directory if it does not exist
+      file:
+        path: /opt/ignition
+        state: directory
+        mode: '0755'
+      when: not dir_status.stat.exists
+
+    - name: Check if /opt/ignition/secrets directory exists
+      stat: 
+        path: /opt/ignition/secrets
+      register: secrets_dir_status
+      
+    - name: Create /opt/ignition/secrets directory if it does not exist
+      file:
+        path: /opt/ignition/secrets
+        state: directory
+        mode: '0755'
+      when: not secrets_dir_status.stat.exists
+      
+    - name: Create GATEWAY_ADMIN_PASSWORD file
+      copy:
+        dest: "/opt/ignition/secrets/GATEWAY_ADMIN_PASSWORD"
+        content: "admin"
+        mode: '0600'
+
+    - name: Create/Overwrite docker-compose.yaml for Ignition
+      copy:
+        dest: "/opt/ignition/docker-compose.yaml"
+        content: |
+          version: '3.1'
+          services:
+            gateway:
+              image: inductiveautomation/ignition
+              ports:
+                - 9089:8088
+                - 9044:8043
+              volumes:
+                - gw-data-maker:/usr/local/bin/ignition/data
+              environment:
+                - ACCEPT_IGNITION_EULA=Y
+                - GATEWAY_ADMIN_USERNAME=admin
+                - GATEWAY_ADMIN_PASSWORD_FILE=/run/secrets/gateway-admin-password
+                - IGNITION_EDITION=standard
+              secrets:
+                - gateway-admin-password
+              command: "-n mhm-edge-gateway"
+          secrets:
+            gateway-admin-password:
+              file: /opt/ignition/secrets/GATEWAY_ADMIN_PASSWORD
+          volumes:
+            gw-data-maker:
+
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+
+    - name: Start Docker Compose
+      shell: cd /opt/ignition && docker-compose up -d
