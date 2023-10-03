@@ -43,8 +43,8 @@
             gateway:
               image: inductiveautomation/ignition
               ports:
-                - 9089:8088
-                - 9044:8043
+                - 8088:8088
+                - 8044:8043
               volumes:
                 - gw-data-maker:/usr/local/bin/ignition/data
               environment:
