@@ -67,4 +67,4 @@
         state: started
 
     - name: Start Docker Compose
-      shell: cd /opt/ignition && docker-compose up -d
+      shell: cd /opt/ignition && docker compose up -d
