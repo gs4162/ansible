@@ -29,7 +29,7 @@ curl -o PLC-ip-tables-v3.sh https://raw.githubusercontent.com/gs4162/ansible/mas
 chmod +x PLC-ip-tables-v3.sh
 sudo ./PLC-ip-tables-v3.sh
 ```
-###### Version 4:
+###### Version 4 - not tested:
 ```
 curl -o PLC-ip-tables-v4.sh https://raw.githubusercontent.com/gs4162/ansible/master/scripts/plc-ip-routes/PLC-ip-tables-v4.sh
 chmod +x PLC-ip-tables-v4.sh
