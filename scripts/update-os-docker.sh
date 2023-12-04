@@ -1,15 +1,30 @@
 #!/bin/bash
 
-# Update and upgrade packages
-apt update
-apt full-upgrade -y
-apt autoremove -y
+# Function to check if a command exists
+command_exists() {
+    type "$1" &> /dev/null
+}
 
-# Navigate to the current working directory
-cd "$(pwd)"
+# Update and upgrade system
+sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove -y
 
-# Perform docker operations
-docker-compose pull
-docker-compose up -d
+# Navigate to the desired directory
+cd "$(pwd)" # Or replace with the specific directory you want to work in
+
+# Check if 'docker compose' (v2) is available, otherwise use 'docker-compose' (v1)
+if command_exists "docker compose"; then
+    COMPOSE_COMMAND="docker compose"
+elif command_exists "docker-compose"; then
+    COMPOSE_COMMAND="docker-compose"
+else
+    echo "Neither 'docker compose' nor 'docker-compose' command is available."
+    exit 1
+fi
+
+# Execute Docker Compose commands
+$COMPOSE_COMMAND pull
+$COMPOSE_COMMAND up -d
+
+# Clean up Docker images and volumes
 docker image prune -af
 docker volume prune -f
