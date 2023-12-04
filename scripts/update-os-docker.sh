@@ -2,7 +2,12 @@
 
 # Function to check if a command exists
 command_exists() {
-    type "$1" &> /dev/null
+    # Check for 'docker compose' specifically
+    if [ "$1" == "docker compose" ]; then
+        docker compose version &> /dev/null && return 0 || return 1
+    else
+        type "$1" &> /dev/null
+    fi
 }
 
 # Update and upgrade system
