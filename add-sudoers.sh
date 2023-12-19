@@ -7,7 +7,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Create a new sudoers file for the ubuntu user
-echo "ubuntu ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ubuntu
+echo "gs4162 ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/gs4162
 
 # Set appropriate permissions for the file
 chmod 440 /etc/sudoers.d/ubuntu
@@ -17,7 +17,7 @@ if visudo -c; then
   echo "Sudoers file valid"
 else
   echo "Sudoers file invalid, removing..."
-  rm /etc/sudoers.d/ubuntu
+  rm /etc/sudoers.d/gs4162
   exit
 fi
 
