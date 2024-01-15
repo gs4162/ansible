@@ -9,7 +9,7 @@ sudo apt-get autoclean -y
 sudo rm -rf /home/* /root/*
 
 echo "Resetting hostname..."
-sudo hostnamectl set-hostname ubuntuSCRIPTED
+sudo hostnamectl set-hostname ubuntu
 
 echo "Disabling SSH service..."
 sudo systemctl disable ssh
@@ -21,10 +21,11 @@ wget https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_amd64
 echo "Installing the AWS SSM Agent..."
 sudo dpkg -i amazon-ssm-agent.deb
 
-# Prompting user for AWS SSM details
+# Prompting user for AWS SSM details with default region as us-east-1
 read -p "Enter your AWS SSM Activation Code: " ssm_code
 read -p "Enter your AWS SSM Activation ID: " ssm_id
-read -p "Enter your AWS Region: " ssm_region
+read -p "Enter your AWS Region [us-east-1]: " ssm_region
+ssm_region=${ssm_region:-us-east-1}
 
 echo "Registering the instance with AWS Systems Manager..."
 sudo amazon-ssm-agent -register -code "$ssm_code" -id "$ssm_id" -region "$ssm_region"
@@ -34,6 +35,9 @@ sudo systemctl start amazon-ssm-agent
 
 echo "Checking the SSM Agent Service Status..."
 sudo systemctl status amazon-ssm-agent
+
+# Sleep for 5 seconds to allow the user to read the status
+sleep 5
 
 echo "Rebooting the system..."
 sudo reboot
