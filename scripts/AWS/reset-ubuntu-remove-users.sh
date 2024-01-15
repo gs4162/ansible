@@ -24,7 +24,7 @@ last_four_chars=$(get_last_four_mac_chars)
 # Prompt the user for automatic hostname setting or default
 read -p "Press 'Y' for automatic hostname based on MAC address, or press Enter for default 'mhm-edge-$last_four_chars': " user_choice
 if [ "$user_choice" = "Y" ] || [ "$user_choice" = "y" ]; then
-    auto_hostname="FW2B-$last_four_chars"
+    auto_hostname="mhm-edge-$last_four_chars"
     set_hostname "$auto_hostname"
 else
     default_hostname="mhm-edge-$last_four_chars"
