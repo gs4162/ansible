@@ -62,14 +62,17 @@ ssm_region=${ssm_region:-us-east-1}
 echo "Registering the instance with AWS Systems Manager..."
 sudo amazon-ssm-agent -register -code "$ssm_code" -id "$ssm_id" -region "$ssm_region"
 
+# ... previous parts of the script ...
+
 echo "Starting the SSM Agent Service..."
 sudo systemctl start amazon-ssm-agent
 
 echo "Checking the SSM Agent Service Status..."
-sudo systemctl status amazon-ssm-agent --no-pager
+sudo systemctl status amazon-ssm-agent --no-pager | head -n 10
 
-Sleep for 5 seconds to allow the user to read the status
+# Sleep for 5 seconds to allow the user to read the status
 sleep 5
 
 echo "Rebooting the system..."
 sudo reboot
+
