@@ -51,6 +51,7 @@ sudo dpkg -i amazon-ssm-agent.deb
 read -p "Enter your AWS SSM Activation Code: " ssm_code
 read -p "Enter your AWS SSM Activation ID: " ssm_id
 read -p "Enter your AWS Region [us-east-1]: " ssm_region
+
 ssm_region=${ssm_region:-us-east-1}
 
 echo "Registering the instance with AWS Systems Manager..."
@@ -60,9 +61,9 @@ echo "Starting the SSM Agent Service..."
 sudo systemctl start amazon-ssm-agent
 
 echo "Checking the SSM Agent Service Status..."
-sudo systemctl status amazon-ssm-agent
+sudo systemctl status amazon-ssm-agent --no-pager
 
-# Sleep for 5 seconds to allow the user to read the status
+Sleep for 5 seconds to allow the user to read the status
 sleep 5
 
 echo "Rebooting the system..."
