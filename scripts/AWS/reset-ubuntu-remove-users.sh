@@ -37,6 +37,11 @@ sudo apt-get autoremove -y
 sudo apt-get autoclean -y
 sudo rm -rf /home/* /root/*
 
+# Recreate the user's home directory
+echo "Recreating /home/ubuntu directory..."
+sudo mkdir -p /home/ubuntu
+sudo chown ubuntu:ubuntu /home/ubuntu
+
 echo "Disabling SSH service..."
 sudo systemctl disable ssh
 sudo systemctl stop ssh
