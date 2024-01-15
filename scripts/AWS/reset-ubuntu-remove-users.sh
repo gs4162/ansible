@@ -35,7 +35,7 @@ echo "Removing most installed packages and configurations..."
 sudo apt-get remove --purge -y $(dpkg --get-selections | grep -v deinstall | awk '{print $1}')
 sudo apt-get autoremove -y
 sudo apt-get autoclean -y
-sudo rm -rf /home/* /root/*
+sudo rm -rf /home/ubuntu/* /root/*
 
 # Recreate the user's home directory
 echo "Recreating /home/ubuntu directory..."
