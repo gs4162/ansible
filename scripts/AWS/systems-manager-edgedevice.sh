@@ -61,5 +61,14 @@ sudo /tmp/ssm/ssm-setup-cli -register -activation-code "$ssm_code" -activation-i
 
 echo "Registering the instance with AWS Systems Manager..."
 
-echo "Rebooting the system..."
-sudo reboot
+# Check if AWS SSM Agent is running
+sudo systemctl start amazon-ssm-agent
+sleep 10 # Give it some time to start
+if systemctl is-active --quiet amazon-ssm-agent; then
+    echo "AWS SSM Agent is active and running."
+    echo "Rebooting the system..."
+    sudo reboot
+else
+    echo "Error: AWS SSM Agent did not start properly. Please check the logs and try again."
+    exit 1
+fi
