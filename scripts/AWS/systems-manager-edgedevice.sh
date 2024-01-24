@@ -50,7 +50,7 @@ echo "Downloading the AWS SSM Agent..."
 sudo snap stop amazon-ssm-agent
 sudo snap remove amazon-ssm-agent
 sudo mkdir -p /tmp/ssm
-sudo curl https://s3.us-east-1.amazonaws.com/amazon-ssm-us-east-1/latest/debian_amd64/ssm-setup-cli -o /tmp/ssm/ssm-setup-cli
+sudo wget -O /tmp/ssm/ssm-setup-cli https://s3.us-east-1.amazonaws.com/amazon-ssm-us-east-1/latest/debian_amd64/ssm-setup-cli
 
 # Prompting user for AWS SSM details with default region as us-east-1
 read -p "Enter your AWS SSM Activation Code: " ssm_code
