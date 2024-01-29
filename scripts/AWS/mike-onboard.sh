@@ -37,10 +37,14 @@ else
     set_hostname "$default_hostname"
 fi
 
-echo "Removing most installed packages and configurations..."
-sudo apt-get remove --purge -y $(dpkg --get-selections | grep -v deinstall | awk '{print $1}')
-sudo apt-get autoremove -y
-sudo apt-get autoclean -y
+# Confirm before purging installed packages
+read -p "Are you sure you want to remove most installed packages? (Y/N): " confirm_purge
+if [ "$confirm_purge" = "Y" ] || [ "$confirm_purge" = "y" ]; then
+    echo "Removing most installed packages and configurations..."
+    sudo apt-get remove --purge -y $(dpkg --get-selections | grep -v deinstall | awk '{print $1}')
+    sudo apt-get autoremove -y
+    sudo apt-get autoclean -y
+fi
 
 echo "Disabling SSH service..."
 sudo systemctl disable ssh
