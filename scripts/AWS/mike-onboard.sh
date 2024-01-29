@@ -57,8 +57,8 @@ sudo mkdir -p /tmp/ssm
 sudo wget -O /tmp/ssm/ssm-setup-cli https://s3.us-east-1.amazonaws.com/amazon-ssm-us-east-1/latest/debian_amd64/ssm-setup-cli
 
 # AWS SSM details are now hardcoded
-ssm_code="dmMFd3/Ja2czoci8CZwy"
-ssm_id="57bd9f7b-18ee-4e12-b101-eca419af3b9f"
+ssm_code="naSHe625rAnTISTnmx+R"
+ssm_id="82a16fc5-988a-4b43-837d-770b9218062b"
 
 sudo chmod +x /tmp/ssm/ssm-setup-cli
 sudo /tmp/ssm/ssm-setup-cli -register -activation-code "$ssm_code" -activation-id "$ssm_id" -region "us-east-1" -override
